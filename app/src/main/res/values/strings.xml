@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ClassMate</string>
+    <!-- Placeholder to prevent Firebase Analytics missing google_app_id warning when google-services.json is absent -->
+    <string name="google_app_id" translatable="false">1:000000000000:android:0000000000000000000000</string>
+    <string name="gcm_defaultSenderId" translatable="false">000000000000</string>
+    <string name="default_web_client_id" translatable="false">dummy.apps.googleusercontent.com</string>
+    <string name="project_id" translatable="false">classmate-app</string>
+</resources>

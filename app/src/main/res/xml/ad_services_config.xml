@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ad-services-config>
+    <!-- Disable adservices attribution & measurement binding on devices/emulators where the service is not installed -->
+    <attribution allowAdPartners="false" />
+    <topics allowAdPartners="false" />
+    <fledge allowAdPartners="false" />
+    <protected-app-signals allowAdPartners="false" />
+</ad-services-config>

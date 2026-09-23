@@ -1,0 +1,131 @@
+package com.example.ui.components
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.ui.AppScreen
+
+sealed class BottomNavTab(
+    val route: String,
+    val label: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+    val testTag: String
+) {
+    data object Home : BottomNavTab(
+        route = "home",
+        label = "Home",
+        selectedIcon = Icons.Default.Home,
+        unselectedIcon = Icons.Outlined.Home,
+        testTag = "nav_tab_home"
+    )
+
+    data object FocusTimer : BottomNavTab(
+        route = "timer",
+        label = "Focus",
+        selectedIcon = Icons.Default.Timer,
+        unselectedIcon = Icons.Outlined.Timer,
+        testTag = "nav_tab_timer"
+    )
+
+    data object Settings : BottomNavTab(
+        route = "settings",
+        label = "Settings",
+        selectedIcon = Icons.Default.Settings,
+        unselectedIcon = Icons.Outlined.Settings,
+        testTag = "nav_tab_settings"
+    )
+}
+
+@Composable
+fun AppBottomNavigationBar(
+    currentScreen: AppScreen,
+    onNavigateToHome: () -> Unit,
+    onNavigateToTimer: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val tabs = listOf(
+        BottomNavTab.Home,
+        BottomNavTab.FocusTimer,
+        BottomNavTab.Settings
+    )
+
+    val currentTab = when (currentScreen) {
+        is AppScreen.Home -> BottomNavTab.Home
+        is AppScreen.FocusTimer -> BottomNavTab.FocusTimer
+        is AppScreen.Settings -> BottomNavTab.Settings
+        else -> null
+    }
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        tonalElevation = 0.dp,
+        shadowElevation = 8.dp,
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+    ) {
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp
+        ) {
+            tabs.forEach { tab ->
+                val selected = currentTab == tab
+                NavigationBarItem(
+                    selected = selected,
+                    onClick = {
+                        when (tab) {
+                            BottomNavTab.Home -> onNavigateToHome()
+                            BottomNavTab.FocusTimer -> onNavigateToTimer()
+                            BottomNavTab.Settings -> onNavigateToSettings()
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,
+                            contentDescription = tab.label
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = tab.label,
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                        )
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                    ),
+                    modifier = Modifier.testTag(tab.testTag)
+                )
+            }
+        }
+    }
+}
