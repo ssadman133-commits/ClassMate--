@@ -292,4 +292,38 @@ class ClassNotesRepository(
     suspend fun deleteFocusSession(session: FocusSession) = withContext(Dispatchers.IO) {
         dao.deleteFocusSession(session)
     }
+
+    // Faculty Members
+    val allFacultyMembers: Flow<List<FacultyMember>> = dao.getAllFacultyMembers()
+
+    suspend fun insertFacultyMember(
+        name: String,
+        designation: String,
+        department: String,
+        email: String,
+        phone: String,
+        roomNumber: String,
+        initials: String = "",
+        officeHours: String = ""
+    ): Long = withContext(Dispatchers.IO) {
+        val member = FacultyMember(
+            name = name.trim(),
+            designation = designation.trim(),
+            department = department.trim(),
+            email = email.trim(),
+            phone = phone.trim(),
+            roomNumber = roomNumber.trim(),
+            initials = initials.trim(),
+            officeHours = officeHours.trim()
+        )
+        dao.insertFacultyMember(member)
+    }
+
+    suspend fun updateFacultyMember(member: FacultyMember) = withContext(Dispatchers.IO) {
+        dao.updateFacultyMember(member)
+    }
+
+    suspend fun deleteFacultyMember(member: FacultyMember) = withContext(Dispatchers.IO) {
+        dao.deleteFacultyMember(member)
+    }
 }

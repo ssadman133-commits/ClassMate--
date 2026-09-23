@@ -236,4 +236,23 @@ interface ClassNotesDao {
 
     @Delete
     suspend fun deleteFocusSession(session: FocusSession)
+
+    // Faculty Members
+    @Query("SELECT * FROM faculty_members ORDER BY name ASC")
+    fun getAllFacultyMembers(): Flow<List<FacultyMember>>
+
+    @Query("SELECT * FROM faculty_members WHERE id = :id LIMIT 1")
+    fun getFacultyMemberById(id: Long): Flow<FacultyMember?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFacultyMember(member: FacultyMember): Long
+
+    @Update
+    suspend fun updateFacultyMember(member: FacultyMember)
+
+    @Delete
+    suspend fun deleteFacultyMember(member: FacultyMember)
+
+    @Query("DELETE FROM faculty_members WHERE id = :id")
+    suspend fun deleteFacultyMemberById(id: Long)
 }

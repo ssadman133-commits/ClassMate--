@@ -17,9 +17,10 @@ import androidx.room.RoomDatabase
         CachedSponsor::class,
         StudyPlan::class,
         StudyPlanTask::class,
-        FocusSession::class
+        FocusSession::class,
+        FacultyMember::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

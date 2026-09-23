@@ -53,10 +53,14 @@ private var sCachedAdUnitId: String? = null
 private var sIsCachedAdLoaded: Boolean = false
 
 object AdMobConstants {
-    const val APP_ID = "ca-app-pub-8519955082545459~1152490013"
+    const val APP_ID = "ca-app-pub-8519955082545459~2124969958"
     const val BANNER_AD_UNIT_ID = "ca-app-pub-8519955082545459/4440998339"
     // Google's official sample banner ad unit ID for development and emulators
     const val TEST_BANNER_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"
+    
+    // Native Advanced Ad Unit IDs
+    const val NATIVE_AD_UNIT_ID = "ca-app-pub-8519955082545459/3653674044"
+    const val TEST_NATIVE_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"
 }
 
 fun isRunningOnEmulator(): Boolean {

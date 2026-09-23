@@ -11,6 +11,7 @@ import com.example.data.ClassNotesRepository
 import com.example.data.Course
 import com.example.data.CourseWithCounts
 import com.example.data.Exam
+import com.example.data.FacultyMember
 import com.example.data.FocusSession
 import com.example.data.TimerMode
 import com.example.data.TimerState
@@ -39,6 +40,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -58,6 +60,9 @@ sealed interface AppScreen {
     data object ClassRoutine : AppScreen
     data object StudyPlanner : AppScreen
     data object FocusTimer : AppScreen
+    data object TuitionCalculator : AppScreen
+    data object CoverPageGenerator : AppScreen
+    data object FacultyInfo : AppScreen
     data object Settings : AppScreen
 }
 
@@ -238,6 +243,14 @@ class ClassNotesViewModel(application: Application) : AndroidViewModel(applicati
             initialValue = null
         )
 
+    // Faculty Members
+    val facultyMembers: StateFlow<List<FacultyMember>> = repository.allFacultyMembers
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
     // Search Query & Results
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -388,6 +401,18 @@ class ClassNotesViewModel(application: Application) : AndroidViewModel(applicati
         _currentScreen.value = AppScreen.FocusTimer
     }
 
+    fun navigateToTuitionCalculator() {
+        _currentScreen.value = AppScreen.TuitionCalculator
+    }
+
+    fun navigateToCoverPageGenerator() {
+        _currentScreen.value = AppScreen.CoverPageGenerator
+    }
+
+    fun navigateToFacultyInfo() {
+        _currentScreen.value = AppScreen.FacultyInfo
+    }
+
     fun navigateToSettings() {
         _currentScreen.value = AppScreen.Settings
     }
@@ -414,12 +439,103 @@ class ClassNotesViewModel(application: Application) : AndroidViewModel(applicati
             is AppScreen.ClassRoutine,
             is AppScreen.StudyPlanner,
             is AppScreen.FocusTimer,
+            is AppScreen.TuitionCalculator,
+            is AppScreen.CoverPageGenerator,
+            is AppScreen.FacultyInfo,
             is AppScreen.Settings -> {
                 navigateToHome()
                 true
             }
             AppScreen.Home -> {
                 false // Let system handle exit
+            }
+        }
+    }
+
+    fun addFacultyMember(
+        name: String,
+        designation: String,
+        department: String,
+        email: String,
+        phone: String,
+        roomNumber: String,
+        initials: String = "",
+        officeHours: String = ""
+    ) {
+        viewModelScope.launch {
+            repository.insertFacultyMember(
+                name = name,
+                designation = designation,
+                department = department,
+                email = email,
+                phone = phone,
+                roomNumber = roomNumber,
+                initials = initials,
+                officeHours = officeHours
+            )
+            _userMessage.value = "Faculty member added successfully"
+        }
+    }
+
+    fun updateFacultyMember(member: FacultyMember) {
+        viewModelScope.launch {
+            repository.updateFacultyMember(member)
+            _userMessage.value = "Faculty information updated"
+        }
+    }
+
+    fun deleteFacultyMember(member: FacultyMember) {
+        viewModelScope.launch {
+            repository.deleteFacultyMember(member)
+            _userMessage.value = "Faculty member removed"
+        }
+    }
+
+    fun seedSampleFacultyIfEmpty() {
+        viewModelScope.launch {
+            val existing = repository.allFacultyMembers.first()
+            if (existing.isEmpty()) {
+                repository.insertFacultyMember(
+                    name = "Dr. Mohammad Tariqul Islam",
+                    designation = "Professor & Head",
+                    department = "Computer Science & Engineering",
+                    email = "tariqul.islam@univ.edu.bd",
+                    phone = "+880 1711-234567",
+                    roomNumber = "Room 402, Academic Bldg A",
+                    initials = "MTI",
+                    officeHours = "Sun & Tue: 2:00 PM - 4:00 PM"
+                )
+                repository.insertFacultyMember(
+                    name = "Fatima tuz Zohra",
+                    designation = "Assistant Professor",
+                    department = "Electrical & Electronic Engineering",
+                    email = "fzohra@univ.edu.bd",
+                    phone = "+880 1812-987654",
+                    roomNumber = "Room 305, Tech Center",
+                    initials = "FTZ",
+                    officeHours = "Mon & Wed: 11:00 AM - 1:00 PM"
+                )
+                repository.insertFacultyMember(
+                    name = "Kazi Aminul Haque",
+                    designation = "Lecturer",
+                    department = "Business Administration",
+                    email = "aminul.haque@univ.edu.bd",
+                    phone = "+880 1913-456789",
+                    roomNumber = "Room 210, Business Tower",
+                    initials = "KAH",
+                    officeHours = "Sunday to Thursday: 3:00 PM - 5:00 PM"
+                )
+            } else {
+                // Deduplicate any duplicates created by earlier concurrent calls
+                val seenKeys = mutableSetOf<String>()
+                existing.forEach { member ->
+                    val key = "${member.name.trim().lowercase()}_${member.department.trim().lowercase()}"
+                    if (key in seenKeys) {
+                        repository.deleteFacultyMember(member)
+                    } else {
+                        seenKeys.add(key)
+                    }
+                }
             }
         }
     }

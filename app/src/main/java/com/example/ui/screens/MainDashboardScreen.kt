@@ -38,14 +38,17 @@ import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
@@ -96,6 +99,7 @@ import com.example.ui.components.AlertCalculator
 import com.example.ui.components.AppBottomNavigationBar
 import com.example.ui.components.CompactSponsorBanner
 import com.example.ui.components.CompactSponsorCarousel
+import com.example.ui.components.DashboardHubAdBanner
 import com.example.ui.components.UpcomingAlertsBottomSheet
 import com.example.util.CountryDetector
 import java.util.Calendar
@@ -121,11 +125,14 @@ fun MainDashboardScreen(
     onNavigateToStudyPlanner: () -> Unit,
     onNavigateToTimer: () -> Unit = {},
     onNavigateToCgpa: () -> Unit,
+    onNavigateToTuition: () -> Unit = {},
     onNavigateToAssignments: () -> Unit,
     onNavigateToExams: () -> Unit,
     onNavigateToRoutine: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToSearch: () -> Unit,
+    onNavigateToCoverPage: () -> Unit = {},
+    onNavigateToFacultyInfo: () -> Unit = {},
     onSponsorClick: (String, String) -> Unit,
     onSponsorImpression: ((String) -> Unit)? = null,
     onImportSharedNote: (() -> Unit)? = null,
@@ -563,7 +570,7 @@ fun MainDashboardScreen(
                 }
             }
 
-            // Row 2: CGPA Calculator | Assignments
+            // Row 2: CGPA Calculator | Tuition Fee
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -580,24 +587,34 @@ fun MainDashboardScreen(
                     )
 
                     HubGridCard(
-                        title = "Assignments",
-                        badgeText = if (upcomingAssignmentCount > 0) "$upcomingAssignmentCount Due" else null,
-                        icon = Icons.Default.Assignment,
-                        iconContainerColor = if (isDark) Color(0xFF064E3B) else Color(0xFFECFDF5),
+                        title = "Tuition Fee\nCalculator",
+                        icon = Icons.Default.Payments,
+                        iconContainerColor = if (isDark) Color(0xFF064E3B) else Color(0xFFD1FAE5),
                         iconTint = if (isDark) Color(0xFF34D399) else Color(0xFF059669),
-                        testTag = "hub_assignments_card",
+                        testTag = "hub_tuition_card",
                         modifier = Modifier.weight(1f),
-                        onClick = onNavigateToAssignments
+                        onClick = onNavigateToTuition
                     )
                 }
             }
 
-            // Row 3: Exams | Class Routine
+            // Row 3: Assignments | Exams
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    HubGridCard(
+                        title = "Assignments",
+                        badgeText = if (upcomingAssignmentCount > 0) "$upcomingAssignmentCount Due" else null,
+                        icon = Icons.Default.Assignment,
+                        iconContainerColor = if (isDark) Color(0xFF0F2E23) else Color(0xFFECFDF5),
+                        iconTint = if (isDark) Color(0xFF6EE7B7) else Color(0xFF10B981),
+                        testTag = "hub_assignments_card",
+                        modifier = Modifier.weight(1f),
+                        onClick = onNavigateToAssignments
+                    )
+
                     HubGridCard(
                         title = "Exams",
                         badgeText = if (upcomingExamCount > 0) "$upcomingExamCount" else null,
@@ -608,7 +625,15 @@ fun MainDashboardScreen(
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToExams
                     )
+                }
+            }
 
+            // Row 4: Class Routine | Focus Timer
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     HubGridCard(
                         title = "Class Routine",
                         icon = Icons.Default.CalendarMonth,
@@ -617,6 +642,53 @@ fun MainDashboardScreen(
                         testTag = "hub_routine_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToRoutine
+                    )
+
+                    HubGridCard(
+                        title = "Focus Timer",
+                        icon = Icons.Default.Timer,
+                        iconContainerColor = if (isDark) Color(0xFF312E81) else Color(0xFFEDE9FE),
+                        iconTint = if (isDark) Color(0xFFA78BFA) else Color(0xFF7C3AED),
+                        testTag = "hub_timer_card",
+                        modifier = Modifier.weight(1f),
+                        onClick = onNavigateToTimer
+                    )
+                }
+            }
+
+            // AdMob Ad Banner directly below Class Routine & Focus Timer (Large Banner 320x100)
+            item {
+                DashboardHubAdBanner(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 4.dp)
+                )
+            }
+
+            // Row 5: Cover Page Generator (Box type matching other workspace functions)
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    HubGridCard(
+                        title = "Cover Page\nGenerator",
+                        icon = Icons.Default.Description,
+                        iconContainerColor = if (isDark) Color(0xFF1E1B4B) else Color(0xFFEEF2FF),
+                        iconTint = if (isDark) Color(0xFF818CF8) else Color(0xFF4F46E5),
+                        testTag = "hub_cover_page_card",
+                        modifier = Modifier.weight(1f),
+                        onClick = onNavigateToCoverPage
+                    )
+
+                    HubGridCard(
+                        title = "Faculty\nInfo",
+                        icon = Icons.Default.School,
+                        iconContainerColor = if (isDark) Color(0xFF1E3A8A) else Color(0xFFDBEAFE),
+                        iconTint = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB),
+                        testTag = "hub_faculty_info_card",
+                        modifier = Modifier.weight(1f),
+                        onClick = onNavigateToFacultyInfo
                     )
                 }
             }
@@ -797,16 +869,20 @@ fun HubGridCard(
     val containerColor = if (isDark) Color(0xFF131B2E) else Color.White
     val titleColor = if (isDark) Color.White else Color(0xFF0F172A)
     val chevronTint = if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8)
-    val borderColor = if (isDark) Color(0xFF1E293B) else Color(0xFFCBD5E1)
+    val borderColor = if (isDark) Color(0xFF1E293B) else Color(0xFFE2E8F0)
+
+    val shadowElevation = if (isDark) 3.dp else 8.dp
+    val shadowSpotColor = if (isDark) Color(0x60000000) else Color(0x3E0F172A)
+    val shadowAmbientColor = if (isDark) Color(0x40000000) else Color(0x221E293B)
 
     Card(
         modifier = modifier
             .height(108.dp)
             .shadow(
-                elevation = if (isDark) 2.dp else 6.dp,
+                elevation = shadowElevation,
                 shape = RoundedCornerShape(20.dp),
-                spotColor = Color(0x380F172A),
-                ambientColor = Color(0x1F0F172A)
+                spotColor = shadowSpotColor,
+                ambientColor = shadowAmbientColor
             )
             .clip(RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
@@ -814,7 +890,10 @@ fun HubGridCard(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
         border = BorderStroke(1.dp, borderColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 2.dp else 5.dp)
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isDark) 3.dp else 6.dp,
+            pressedElevation = 10.dp
+        )
     ) {
         Box(
             modifier = Modifier
@@ -903,23 +982,34 @@ fun TodayScheduleHighlightCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val shadowSpot = if (isDark) Color(0x60000000) else Color(0x350F172A)
+    val shadowAmbient = if (isDark) Color(0x40000000) else Color(0x1F1E293B)
+
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .shadow(
+                elevation = if (isDark) 3.dp else 7.dp,
+                shape = RoundedCornerShape(18.dp),
+                spotColor = shadowSpot,
+                ambientColor = shadowAmbient
+            )
             .clip(RoundedCornerShape(18.dp))
             .clickable(onClick = onClick)
             .testTag("dashboard_today_schedule_card"),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+            containerColor = if (isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f) else Color.White
         ),
         border = BorderStroke(
             width = 1.dp,
             color = if (todayClasses.isNotEmpty())
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                if (isDark) MaterialTheme.colorScheme.primary.copy(alpha = 0.35f) else Color(0xFF0284C7).copy(alpha = 0.3f)
             else
-                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f)
-        )
+                if (isDark) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f) else Color(0xFFE2E8F0)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 2.dp else 5.dp)
     ) {
         Column(
             modifier = Modifier
@@ -1073,10 +1163,10 @@ fun BannerSlotStabilizerPlaceholder(
             .fillMaxWidth()
             .height(158.dp)
             .shadow(
-                elevation = 5.dp,
+                elevation = 8.dp,
                 shape = RoundedCornerShape(18.dp),
-                spotColor = Color(0x350F172A),
-                ambientColor = Color(0x180F172A)
+                spotColor = Color(0x450F172A),
+                ambientColor = Color(0x220F172A)
             )
             .clip(RoundedCornerShape(18.dp)),
         shape = RoundedCornerShape(18.dp),
@@ -1087,7 +1177,7 @@ fun BannerSlotStabilizerPlaceholder(
             width = 1.dp,
             color = Color(0xFF1E293B).copy(alpha = 0.6f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -1137,10 +1227,10 @@ fun TodayAcademicAgendaBanner(
             .fillMaxWidth()
             .height(158.dp)
             .shadow(
-                elevation = 5.dp,
+                elevation = 8.dp,
                 shape = RoundedCornerShape(18.dp),
-                spotColor = Color(0x350F172A),
-                ambientColor = Color(0x180F172A)
+                spotColor = Color(0x450F172A),
+                ambientColor = Color(0x220F172A)
             )
             .clip(RoundedCornerShape(18.dp))
             .clickable(onClick = onClickAction)
@@ -1153,7 +1243,7 @@ fun TodayAcademicAgendaBanner(
             width = 1.dp,
             color = Color(0xFF1E293B)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             // Subtle aesthetic background watermark icon

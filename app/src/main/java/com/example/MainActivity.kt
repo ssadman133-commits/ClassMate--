@@ -60,6 +60,9 @@ import com.example.ui.screens.NoteViewerScreen
 import com.example.ui.screens.SettingsScreen
 import com.example.ui.screens.StudyPlannerScreen
 import com.example.ui.screens.TopicNotesScreen
+import com.example.ui.screens.TuitionCalculatorScreen
+import com.example.ui.screens.CoverPageGeneratorScreen
+import com.example.ui.screens.FacultyInfoScreen
 import com.example.ui.theme.MyApplicationTheme
 import com.example.util.NotificationScheduler
 import com.example.util.AppThemeMode
@@ -279,11 +282,14 @@ fun ClassNotesApp(
                             onNavigateToStudyPlanner = { viewModel.navigateToStudyPlanner() },
                             onNavigateToTimer = { viewModel.navigateToFocusTimer() },
                             onNavigateToCgpa = { viewModel.navigateToCgpa() },
+                            onNavigateToTuition = { viewModel.navigateToTuitionCalculator() },
                             onNavigateToAssignments = { viewModel.navigateToAssignments() },
                             onNavigateToExams = { viewModel.navigateToExams() },
                             onNavigateToRoutine = { viewModel.navigateToRoutine() },
                             onNavigateToSettings = { viewModel.navigateToSettings() },
                             onNavigateToSearch = { viewModel.navigateToSearch() },
+                            onNavigateToCoverPage = { viewModel.navigateToCoverPageGenerator() },
+                            onNavigateToFacultyInfo = { viewModel.navigateToFacultyInfo() },
                             onSponsorClick = { url, sponsorId ->
                                 viewModel.recordSponsorClick(sponsorId)
                                 try {
@@ -502,6 +508,25 @@ fun ClassNotesApp(
                                     onNavigateToSettings = { viewModel.navigateToSettings() }
                                 )
                             }
+                        )
+                    }
+
+                    is AppScreen.TuitionCalculator -> {
+                        TuitionCalculatorScreen(
+                            onBack = { viewModel.navigateBack() }
+                        )
+                    }
+
+                    is AppScreen.CoverPageGenerator -> {
+                        CoverPageGeneratorScreen(
+                            onBack = { viewModel.navigateBack() }
+                        )
+                    }
+
+                    is AppScreen.FacultyInfo -> {
+                        FacultyInfoScreen(
+                            viewModel = viewModel,
+                            onBack = { viewModel.navigateBack() }
                         )
                     }
 
