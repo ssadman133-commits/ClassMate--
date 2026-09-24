@@ -112,9 +112,9 @@ fun FacultyInfoScreen(
         AppThemeMode.DARK -> true
     }
 
-    // Auto-seed sample faculty if empty so user immediately sees populated directory
+    // Clear any sample mock faculty so user begins with their own personal faculty directory
     LaunchedEffect(Unit) {
-        viewModel.seedSampleFacultyIfEmpty()
+        viewModel.removeSampleFacultyIfPresent()
     }
 
     var searchQuery by rememberSaveable { mutableStateOf("") }
@@ -160,10 +160,10 @@ fun FacultyInfoScreen(
         }
     }
 
-    // Light mode: Clean, soft off-white background (#F1F5F9) so pure white cards float with a gentle, beautiful shadow
-    val screenBgColor = if (isDark) Color(0xFF0F172A) else Color(0xFFF1F5F9)
-    val topBarBgColor = if (isDark) Color(0xFF1E293B) else Color.White
-    val topBarTextColor = if (isDark) Color(0xFFF8FAFC) else Color(0xFF111827)
+    // Light mode: Clean, soft off-white background (#F5F7FA) so pure white cards float with a gentle, beautiful shadow
+    val screenBgColor = if (isDark) Color(0xFF0F172A) else Color(0xFFF5F7FA)
+    val topBarBgColor = if (isDark) Color(0xFF1E293B) else Color(0xFFF5F7FA)
+    val topBarTextColor = if (isDark) Color(0xFFF8FAFC) else Color(0xFF1F2937)
     val subtitleTextColor = if (isDark) Color(0xFF94A3B8) else Color(0xFF6B7280)
 
     Scaffold(
@@ -232,7 +232,7 @@ fun FacultyInfoScreen(
         ) {
             // Subtle separator line below top bar
             HorizontalDivider(
-                color = if (isDark) Color(0xFF334155) else Color(0xFFDCE3EB),
+                color = if (isDark) Color(0xFF334155) else Color(0xFFEEF2F6),
                 thickness = 1.dp
             )
 
@@ -499,18 +499,18 @@ fun FacultyCardItem(
     onDelete: () -> Unit
 ) {
     val cardContainerColor = if (isDark) Color(0xFF1E293B) else Color.White
-    val cardBorderColor = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+    val cardBorderColor = if (isDark) Color(0xFF334155) else Color(0xFFEEF2F6)
 
     // Soft, balanced, and aesthetically pleasing drop shadow
-    val shadowSpreadColor = if (isDark) Color(0x33000000) else Color(0x0C0F172A)
-    val shadowDirectColor = if (isDark) Color(0x55000000) else Color(0x150F172A)
+    val shadowSpreadColor = if (isDark) Color(0x33000000) else Color(0x0A0F172A)
+    val shadowDirectColor = if (isDark) Color(0x55000000) else Color(0x120F172A)
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             // Natural, soft dual-layer canvas shadow that looks clean and premium
             .drawBehind {
-                val radius = 16.dp.toPx()
+                val radius = 18.dp.toPx()
                 // Layer 1: Gentle ambient halo
                 drawRoundRect(
                     color = shadowSpreadColor,
@@ -532,14 +532,14 @@ fun FacultyCardItem(
                 .fillMaxWidth()
                 .shadow(
                     elevation = if (isDark) 4.dp else 2.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    spotColor = if (isDark) Color.Black else Color(0x1F000000),
-                    ambientColor = if (isDark) Color.Black else Color(0x0D000000)
+                    shape = RoundedCornerShape(18.dp),
+                    spotColor = if (isDark) Color.Black else Color(0x1A0F172A),
+                    ambientColor = if (isDark) Color.Black else Color(0x0D0F172A)
                 )
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(18.dp))
                 .clickable(onClick = onClick)
                 .testTag("faculty_card_${faculty.id}"),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(
                 containerColor = cardContainerColor
             ),

@@ -68,6 +68,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -103,6 +104,17 @@ import com.example.ui.components.DashboardHubAdBanner
 import com.example.ui.components.UpcomingAlertsBottomSheet
 import com.example.util.CountryDetector
 import java.util.Calendar
+
+// Reusable static shapes & brushes to completely eliminate recomposition GC overhead
+private val GridCardCornerShape = RoundedCornerShape(18.dp)
+private val GridIconCornerShape = RoundedCornerShape(13.dp)
+private val GridBadgeCornerShape = RoundedCornerShape(8.dp)
+private val CardDropShadowBrush = Brush.verticalGradient(
+    colors = listOf(
+        Color(0xFF64748B).copy(alpha = 0.04f),
+        Color(0xFF334155).copy(alpha = 0.15f)
+    )
+)
 
 // Session-wide stabilization flag: once the app initializes, returning from any sub-screen
 // will never re-trigger startup stabilization or banner reloading.
@@ -263,7 +275,7 @@ fun MainDashboardScreen(
 
     // Pull to refresh gesture handling
     val listState = rememberLazyListState()
-    var pullOffsetY by remember { mutableStateOf(0f) }
+    var pullOffsetY by remember { mutableFloatStateOf(0f) }
     val animatedOffsetY by animateFloatAsState(
         targetValue = if (isRefreshing) 72f else pullOffsetY,
         label = "pull_offset_anim"
@@ -273,7 +285,7 @@ fun MainDashboardScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = if (isDark) Color(0xFF0B0F19) else Color(0xFFE2E8F0),
+        containerColor = if (isDark) Color(0xFF0B0F19) else Color(0xFFE8EDF5),
         topBar = {
             TopAppBar(
                 title = {
@@ -281,27 +293,18 @@ fun MainDashboardScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Surface(
-                            shape = CircleShape,
-                            color = if (isDark) Color(0xFF1E293B) else Color(0xFFFFF7ED),
-                            border = BorderStroke(2.dp, Color(0xFFF97316)),
-                            modifier = Modifier.size(38.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                com.example.ui.components.ClassMateAppLogo(size = 24.dp)
-                            }
-                        }
+                        com.example.ui.components.ClassMateAppLogo(size = 36.dp)
                         Column {
                             Text(
                                 text = "ClassMate",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = if (isDark) Color.White else Color(0xFF0F172A)
+                                color = if (isDark) Color.White else Color(0xFF1F2937)
                             )
                             Text(
                                 text = "Student Productivity Suite",
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                                color = if (isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+                                color = if (isDark) Color(0xFF94A3B8) else Color(0xFF6B7280)
                             )
                         }
                     }
@@ -374,7 +377,7 @@ fun MainDashboardScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isDark) Color(0xFF0B0F19) else Color(0xFFE2E8F0)
+                    containerColor = if (isDark) Color(0xFF0B0F19) else Color(0xFFE8EDF5)
                 )
             )
         },
@@ -392,17 +395,16 @@ fun MainDashboardScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .pointerInput(isRefreshing, listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
+                .pointerInput(Unit) {
                     detectVerticalDragGestures(
                         onVerticalDrag = { _, dragAmount ->
-                            if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0) {
-                                if (dragAmount > 0 || pullOffsetY > 0) {
-                                    pullOffsetY = (pullOffsetY + dragAmount * 0.45f).coerceIn(0f, 130f)
-                                }
+                            val isAtTop = listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+                            if (isAtTop && dragAmount > 0f || pullOffsetY > 0f) {
+                                pullOffsetY = (pullOffsetY + dragAmount * 0.4f).coerceIn(0f, 110f)
                             }
                         },
                         onDragEnd = {
-                            if (pullOffsetY >= 70f && !isRefreshing) {
+                            if (pullOffsetY >= 65f && !isRefreshing) {
                                 onRefresh()
                             }
                             pullOffsetY = 0f
@@ -421,10 +423,10 @@ fun MainDashboardScreen(
                         translationY = animatedOffsetY
                     },
                 contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 6.dp, bottom = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
             // 1. Sponsored / Ad Banner Spot at Top (Right below TopAppBar)
-            item {
+            item(key = "banner_slot") {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -484,7 +486,7 @@ fun MainDashboardScreen(
             }
 
             // 2. Academic Workspace Section Header with Search Action
-            item {
+            item(key = "workspace_header") {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -498,14 +500,15 @@ fun MainDashboardScreen(
                     ) {
                         Surface(
                             shape = RoundedCornerShape(11.dp),
-                            color = if (isDark) Color(0xFF451A03) else Color(0xFFFEF3C7),
+                            color = if (isDark) Color(0xFF1E293B) else Color(0xFFEFF6FF),
+                            border = BorderStroke(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFDBEAFE)),
                             modifier = Modifier.size(36.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.School,
                                     contentDescription = null,
-                                    tint = if (isDark) Color(0xFFFBBF24) else Color(0xFFD97706),
+                                    tint = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB),
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -514,15 +517,16 @@ fun MainDashboardScreen(
                             text = "Academic Workspace",
                             style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
                             fontWeight = FontWeight.Bold,
-                            color = if (isDark) Color.White else Color(0xFF0F172A)
+                            color = if (isDark) Color.White else Color(0xFF1F2937)
                         )
                     }
 
-                    // Eye-catching Vibrant Orange Circular Search Button (matching reference screen)
+                    // Clean, harmonious circular search button matching workspace aesthetic
                     Surface(
                         shape = CircleShape,
-                        color = Color(0xFFF97316),
-                        shadowElevation = 4.dp,
+                        color = if (isDark) Color(0xFF1E293B) else Color(0xFFEFF6FF),
+                        border = BorderStroke(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFDBEAFE)),
+                        shadowElevation = 1.dp,
                         modifier = Modifier
                             .size(38.dp)
                             .clip(CircleShape)
@@ -533,7 +537,7 @@ fun MainDashboardScreen(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "Search Notes",
-                                tint = Color.White,
+                                tint = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -543,7 +547,7 @@ fun MainDashboardScreen(
 
             // 3. 6 Grid Action Cards (2x3 Grid) - Balanced, Aesthetic proportions
             // Row 1: Class Notes & Photos | Study Planner
-            item {
+            item(key = "grid_row_1") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -571,7 +575,7 @@ fun MainDashboardScreen(
             }
 
             // Row 2: CGPA Calculator | Tuition Fee
-            item {
+            item(key = "grid_row_2") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -579,8 +583,8 @@ fun MainDashboardScreen(
                     HubGridCard(
                         title = "CGPA Calculator",
                         icon = Icons.Default.Calculate,
-                        iconContainerColor = if (isDark) Color(0xFF451A03) else Color(0xFFFEF3C7),
-                        iconTint = if (isDark) Color(0xFFFBBF24) else Color(0xFFEA580C),
+                        iconContainerColor = if (isDark) Color(0xFF134E4A) else Color(0xFFCCFBF1),
+                        iconTint = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0D9488),
                         testTag = "hub_cgpa_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToCgpa
@@ -599,7 +603,7 @@ fun MainDashboardScreen(
             }
 
             // Row 3: Assignments | Exams
-            item {
+            item(key = "grid_row_3") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -619,8 +623,8 @@ fun MainDashboardScreen(
                         title = "Exams",
                         badgeText = if (upcomingExamCount > 0) "$upcomingExamCount" else null,
                         icon = Icons.Default.EventNote,
-                        iconContainerColor = if (isDark) Color(0xFF431407) else Color(0xFFFFF7ED),
-                        iconTint = if (isDark) Color(0xFFFB923C) else Color(0xFFEA580C),
+                        iconContainerColor = if (isDark) Color(0xFF4C0519) else Color(0xFFFFE4E6),
+                        iconTint = if (isDark) Color(0xFFFB7185) else Color(0xFFE11D48),
                         testTag = "hub_exams_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToExams
@@ -629,7 +633,7 @@ fun MainDashboardScreen(
             }
 
             // Row 4: Class Routine | Focus Timer
-            item {
+            item(key = "grid_row_4") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -657,7 +661,7 @@ fun MainDashboardScreen(
             }
 
             // AdMob Ad Banner directly below Class Routine & Focus Timer (Large Banner 320x100)
-            item {
+            item(key = "hub_ad_banner") {
                 DashboardHubAdBanner(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -666,7 +670,7 @@ fun MainDashboardScreen(
             }
 
             // Row 5: Cover Page Generator (Box type matching other workspace functions)
-            item {
+            item(key = "grid_row_5") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -694,7 +698,7 @@ fun MainDashboardScreen(
             }
 
             // Extra bottom spacer for smooth scrolling above bottom bar
-            item {
+            item(key = "bottom_spacer") {
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
@@ -862,114 +866,133 @@ fun HubGridCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     badgeText: String? = null,
-    cardHeight: androidx.compose.ui.unit.Dp = 104.dp
+    cardHeight: androidx.compose.ui.unit.Dp = 112.dp
 ) {
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
     val containerColor = if (isDark) Color(0xFF131B2E) else Color.White
-    val titleColor = if (isDark) Color.White else Color(0xFF0F172A)
+    val titleColor = if (isDark) Color(0xFFF8FAFC) else Color(0xFF1E293B)
     val chevronTint = if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8)
-    val borderColor = if (isDark) Color(0xFF1E293B) else Color(0xFFE2E8F0)
+    val borderColor = if (isDark) Color(0xFF1E293B) else Color(0xFFD8DFE8)
 
-    val shadowElevation = if (isDark) 3.dp else 8.dp
-    val shadowSpotColor = if (isDark) Color(0x60000000) else Color(0x3E0F172A)
-    val shadowAmbientColor = if (isDark) Color(0x40000000) else Color(0x221E293B)
-
-    Card(
+    Box(
         modifier = modifier
-            .height(108.dp)
-            .shadow(
-                elevation = shadowElevation,
-                shape = RoundedCornerShape(20.dp),
-                spotColor = shadowSpotColor,
-                ambientColor = shadowAmbientColor
-            )
-            .clip(RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
-            .testTag(testTag),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        border = BorderStroke(1.dp, borderColor),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isDark) 3.dp else 6.dp,
-            pressedElevation = 10.dp
-        )
+            .height(cardHeight + if (!isDark) 3.5.dp else 0.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 14.dp, vertical = 12.dp)
-        ) {
-            // Subtle pastel decorative aura in top right corner (matching reference app)
+        if (!isDark) {
+            // Layer 1: Ambient soft shadow aura (natural, subtle)
             Box(
                 modifier = Modifier
-                    .size(52.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(x = 16.dp, y = (-16).dp)
-                    .clip(CircleShape)
-                    .background(iconContainerColor.copy(alpha = if (isDark) 0.12f else 0.28f))
+                    .fillMaxWidth()
+                    .height(cardHeight)
+                    .offset(y = 1.5.dp)
+                    .clip(GridCardCornerShape)
+                    .background(Color(0xFF94A3B8).copy(alpha = 0.15f))
             )
 
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Top Row: Soft squircle icon + subtle chevron or badge
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(42.dp)
-                            .clip(RoundedCornerShape(13.dp))
-                            .background(iconContainerColor),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = iconTint,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
+            // Layer 2: Soft directional drop shadow (gentle 3.5dp natural depth)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(cardHeight)
+                    .padding(horizontal = 2.dp)
+                    .offset(y = 3.5.dp)
+                    .clip(GridCardCornerShape)
+                    .background(CardDropShadowBrush)
+            )
+        }
 
-                    if (badgeText != null) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = if (isDark) Color(0xFF1976D2) else Color(0xFF2563EB)
+        // Layer 3: Main interactive card
+        Card(
+            onClick = onClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(cardHeight)
+                .testTag(testTag),
+            shape = GridCardCornerShape,
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(1.dp, borderColor),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = if (isDark) 3.dp else 1.5.dp,
+                pressedElevation = 5.dp
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 14.dp, vertical = 12.dp)
+            ) {
+                // Subtle pastel decorative aura in top right corner (matching reference app)
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .align(Alignment.TopEnd)
+                        .offset(x = 16.dp, y = (-16).dp)
+                        .clip(CircleShape)
+                        .background(iconContainerColor.copy(alpha = if (isDark) 0.12f else 0.18f))
+                )
+
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Top Row: Soft squircle icon + subtle chevron or badge
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .clip(GridIconCornerShape)
+                                .background(iconContainerColor),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = badgeText,
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                tint = iconTint,
+                                modifier = Modifier.size(22.dp)
                             )
                         }
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.ChevronRight,
-                            contentDescription = null,
-                            tint = chevronTint,
-                            modifier = Modifier.size(17.dp)
-                        )
-                    }
-                }
 
-                // Bottom: Clean, bold Title (matching reference app layout)
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = 13.5.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        lineHeight = 16.5.sp
-                    ),
-                    color = titleColor,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                        if (badgeText != null) {
+                            Surface(
+                                shape = GridBadgeCornerShape,
+                                color = if (isDark) Color(0xFF1976D2) else Color(0xFF2563EB)
+                            ) {
+                                Text(
+                                    text = badgeText,
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
+                                )
+                            }
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = chevronTint,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+
+                    // Bottom: Clean, bold Title (matching reference app layout)
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            lineHeight = 16.5.sp
+                        ),
+                        color = titleColor,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
@@ -1004,12 +1027,9 @@ fun TodayScheduleHighlightCard(
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = if (todayClasses.isNotEmpty())
-                if (isDark) MaterialTheme.colorScheme.primary.copy(alpha = 0.35f) else Color(0xFF0284C7).copy(alpha = 0.3f)
-            else
-                if (isDark) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f) else Color(0xFFE2E8F0)
+            color = if (isDark) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f) else Color(0xFFEEF2F6)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 2.dp else 5.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 2.dp else 3.dp)
     ) {
         Column(
             modifier = Modifier

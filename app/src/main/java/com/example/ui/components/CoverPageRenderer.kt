@@ -194,7 +194,7 @@ private fun Template1ModernStripe(data: CoverPageData) {
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
                         Text("PREPARED FOR:", color = sapphire, fontSize = 6.sp, fontWeight = FontWeight.Bold)
-                        Text(data.facultyName, color = Color(0xFF0F172A), fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text(data.facultyName.ifBlank { "Teacher / Faculty Name" }, color = Color(0xFF0F172A), fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold)
                         val sub = "${data.facultyDesignation}, ${data.facultyDepartment}".trim().trim(',').trim()
                         if (sub.isNotBlank()) Text(sub, color = Color(0xFF64748B), fontSize = 6.5.sp)
                     }
@@ -209,7 +209,7 @@ private fun Template1ModernStripe(data: CoverPageData) {
                 ) {
                     Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
                         Text("PREPARED BY:", color = sky, fontSize = 6.sp, fontWeight = FontWeight.Bold)
-                        Text(data.studentName, color = Color(0xFF0F172A), fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold)
+                        Text(data.studentName.ifBlank { "Student Full Name" }, color = Color(0xFF0F172A), fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold)
                         val meta = listOf(data.studentId, data.batchSection).filter { it.isNotBlank() }.joinToString(" • ")
                         if (meta.isNotBlank()) Text(meta, color = Color(0xFF64748B), fontSize = 6.5.sp)
                     }
@@ -339,7 +339,7 @@ private fun Template2RoyalBanner(data: CoverPageData) {
                                 Text("SUPERVISOR", color = Color.White, fontSize = 5.5.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
                             }
                             Spacer(modifier = Modifier.height(2.dp))
-                            Text(data.facultyName, fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A), maxLines = 1)
+                            Text(data.facultyName.ifBlank { "Teacher Name" }, fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A), maxLines = 1)
                             Text(data.facultyDesignation, fontSize = 6.5.sp, color = Color(0xFF475569), maxLines = 1)
                             Text(data.facultyDepartment, fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1)
                         }
@@ -356,7 +356,7 @@ private fun Template2RoyalBanner(data: CoverPageData) {
                                 Text("STUDENT", color = Color.White, fontSize = 5.5.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
                             }
                             Spacer(modifier = Modifier.height(2.dp))
-                            Text(data.studentName, fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A), maxLines = 1)
+                            Text(data.studentName.ifBlank { "Student Name" }, fontSize = 7.5.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A), maxLines = 1)
                             Text("ID: ${data.studentId}", fontSize = 6.5.sp, color = Color(0xFF475569), maxLines = 1)
                             Text(data.batchSection, fontSize = 6.sp, color = Color(0xFF64748B), maxLines = 1)
                         }
@@ -455,7 +455,7 @@ private fun Template3OxfordHeritage(data: CoverPageData) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text("Submitted To:", fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 7.sp, color = navy)
                     Spacer(modifier = Modifier.height(2.dp))
-                    Text(data.facultyName, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 7.5.sp, color = Color(0xFF0F172A))
+                    Text(data.facultyName.ifBlank { "Teacher Name" }, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 7.5.sp, color = Color(0xFF0F172A))
                     Text(data.facultyDesignation, fontFamily = FontFamily.Serif, fontSize = 6.5.sp, color = Color(0xFF475569))
                     Text(data.facultyDepartment, fontFamily = FontFamily.Serif, fontSize = 6.sp, color = Color(0xFF64748B))
                 }
@@ -463,7 +463,7 @@ private fun Template3OxfordHeritage(data: CoverPageData) {
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
                     Text("Submitted By:", fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 7.sp, color = gold)
                     Spacer(modifier = Modifier.height(2.dp))
-                    Text(data.studentName, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 7.5.sp, color = Color(0xFF0F172A))
+                    Text(data.studentName.ifBlank { "Student Name" }, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 7.5.sp, color = Color(0xFF0F172A))
                     Text("ID: ${data.studentId}", fontFamily = FontFamily.Serif, fontSize = 6.5.sp, color = Color(0xFF475569))
                     Text(data.batchSection, fontFamily = FontFamily.Serif, fontSize = 6.sp, color = Color(0xFF64748B))
                 }
@@ -595,7 +595,7 @@ private fun Template4StemMatrix(data: CoverPageData) {
                             Text("[01] EVALUATOR", color = cyan, fontSize = 6.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
                         }
                         Column(modifier = Modifier.padding(4.dp)) {
-                            Text(data.facultyName, fontSize = 7.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, maxLines = 1)
+                            Text(data.facultyName.ifBlank { "Teacher Name" }, fontSize = 7.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, maxLines = 1)
                             Text(data.facultyDesignation, fontSize = 6.sp, fontFamily = FontFamily.Monospace, color = Color(0xFF64748B), maxLines = 1)
                             Text(data.facultyDepartment, fontSize = 5.5.sp, fontFamily = FontFamily.Monospace, color = Color(0xFF94A3B8), maxLines = 1)
                         }
@@ -609,7 +609,7 @@ private fun Template4StemMatrix(data: CoverPageData) {
                             Text("[02] CANDIDATE", color = teal, fontSize = 6.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
                         }
                         Column(modifier = Modifier.padding(4.dp)) {
-                            Text(data.studentName, fontSize = 7.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, maxLines = 1)
+                            Text(data.studentName.ifBlank { "Student Name" }, fontSize = 7.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, maxLines = 1)
                             Text("ID: ${data.studentId}", fontSize = 6.sp, fontFamily = FontFamily.Monospace, color = Color(0xFF0F172A), maxLines = 1)
                             Text(data.batchSection, fontSize = 5.5.sp, fontFamily = FontFamily.Monospace, color = Color(0xFF64748B), maxLines = 1)
                         }
@@ -721,7 +721,7 @@ private fun Template5EmeraldScholar(data: CoverPageData) {
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("SUPERVISED BY: ${data.facultyName}", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text("SUPERVISED BY: ${data.facultyName.ifBlank { "Teacher Name" }}", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                             Text("${data.facultyDesignation}, ${data.facultyDepartment}".trim().trim(',').trim(), fontSize = 6.5.sp, color = Color(0xFF64748B))
                         }
                     }
@@ -743,7 +743,7 @@ private fun Template5EmeraldScholar(data: CoverPageData) {
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("SUBMITTED BY: ${data.studentName}", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text("SUBMITTED BY: ${data.studentName.ifBlank { "Student Name" }}", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                             Text("ID: ${data.studentId} • ${data.batchSection}", fontSize = 6.5.sp, color = Color(0xFF64748B))
                         }
                     }
@@ -842,7 +842,7 @@ private fun Template6CrimsonMagazineSplit(data: CoverPageData) {
             // Faculty
             Column {
                 Text("SUBMITTED TO", color = Color(0xFF64748B), fontSize = 6.sp, fontWeight = FontWeight.Bold)
-                Text(data.facultyName, color = Color(0xFF0F172A), fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                Text(data.facultyName.ifBlank { "Teacher Name" }, color = Color(0xFF0F172A), fontSize = 8.sp, fontWeight = FontWeight.Bold)
                 Text(data.facultyDesignation, color = Color(0xFF475569), fontSize = 6.5.sp)
                 Text(data.facultyDepartment, color = Color(0xFF64748B), fontSize = 6.sp)
             }
@@ -852,7 +852,7 @@ private fun Template6CrimsonMagazineSplit(data: CoverPageData) {
             // Student with highlighted ID
             Column {
                 Text("SUBMITTED BY", color = Color(0xFF64748B), fontSize = 6.sp, fontWeight = FontWeight.Bold)
-                Text(data.studentName, color = Color(0xFF0F172A), fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                Text(data.studentName.ifBlank { "Student Name" }, color = Color(0xFF0F172A), fontSize = 8.sp, fontWeight = FontWeight.Bold)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(shape = RoundedCornerShape(4.dp), color = crimson) {
                         Text("ID: ${data.studentId}", color = Color.White, fontSize = 6.5.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))

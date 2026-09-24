@@ -68,6 +68,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -114,45 +115,65 @@ fun CoverPageGeneratorScreen(
     // SharedPreferences for persistent default student info
     val prefs = remember { context.getSharedPreferences("cover_page_prefs", Context.MODE_PRIVATE) }
 
-    // Cover Page Form States
+    // Clear legacy mock demo values from prefs if they were previously saved
+    LaunchedEffect(Unit) {
+        val oldSavedUni = prefs.getString("university_name", null)
+        val oldStudent = prefs.getString("student_name", null)
+        if (oldSavedUni == "DHAKA UNIVERSITY" || oldStudent == "Sadman Sakib") {
+            prefs.edit()
+                .remove("university_name")
+                .remove("student_name")
+                .remove("student_id")
+                .remove("department")
+                .remove("batch_section")
+                .apply()
+        }
+    }
+
+    // Cover Page Form States (clean and empty by default for the user to fill)
     var selectedTemplateId by rememberSaveable {
         mutableStateOf(prefs.getString("template_id", CoverPageTemplate.MODERN_MINIMAL.id) ?: CoverPageTemplate.MODERN_MINIMAL.id)
     }
     var universityName by rememberSaveable {
-        mutableStateOf(prefs.getString("university_name", "DHAKA UNIVERSITY") ?: "DHAKA UNIVERSITY")
+        val saved = prefs.getString("university_name", "") ?: ""
+        mutableStateOf(if (saved == "DHAKA UNIVERSITY") "" else saved)
     }
     var assignmentTitle by rememberSaveable {
-        mutableStateOf("DATABASE MANAGEMENT SYSTEMS")
+        mutableStateOf("")
     }
     var assignmentSubtitle by rememberSaveable {
         mutableStateOf("")
     }
     var courseTitle by rememberSaveable {
-        mutableStateOf("Database Systems & Architecture")
+        mutableStateOf("")
     }
     var courseCode by rememberSaveable {
-        mutableStateOf("CSE-301")
+        mutableStateOf("")
     }
     var studentName by rememberSaveable {
-        mutableStateOf(prefs.getString("student_name", "Sadman Sakib") ?: "Sadman Sakib")
+        val saved = prefs.getString("student_name", "") ?: ""
+        mutableStateOf(if (saved == "Sadman Sakib") "" else saved)
     }
     var studentId by rememberSaveable {
-        mutableStateOf(prefs.getString("student_id", "2023-1-60-045") ?: "2023-1-60-045")
+        val saved = prefs.getString("student_id", "") ?: ""
+        mutableStateOf(if (saved == "2023-1-60-045") "" else saved)
     }
     var department by rememberSaveable {
-        mutableStateOf(prefs.getString("department", "Computer Science & Engineering") ?: "Computer Science & Engineering")
+        val saved = prefs.getString("department", "") ?: ""
+        mutableStateOf(if (saved == "Computer Science & Engineering") "" else saved)
     }
     var batchSection by rememberSaveable {
-        mutableStateOf(prefs.getString("batch_section", "Batch 52, Section B") ?: "Batch 52, Section B")
+        val saved = prefs.getString("batch_section", "") ?: ""
+        mutableStateOf(if (saved == "Batch 52, Section B") "" else saved)
     }
     var facultyName by rememberSaveable {
-        mutableStateOf("Dr. Md. Tariqul Islam")
+        mutableStateOf("")
     }
     var facultyDesignation by rememberSaveable {
-        mutableStateOf("Associate Professor")
+        mutableStateOf("")
     }
     var facultyDepartment by rememberSaveable {
-        mutableStateOf("Department of CSE")
+        mutableStateOf("")
     }
 
     val defaultToday = remember {
@@ -696,7 +717,7 @@ private fun CoverPageFormTab(
             value = universityName,
             onValueChange = onUniversityChange,
             label = { Text("University / College Name") },
-            placeholder = { Text("e.g. UNIVERSITY OF OXFORD / DHAKA UNIVERSITY") },
+            placeholder = { Text("Enter your university or college name") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -705,7 +726,7 @@ private fun CoverPageFormTab(
             value = assignmentTitle,
             onValueChange = onAssignmentTitleChange,
             label = { Text("Assignment Topic / Title *") },
-            placeholder = { Text("e.g. Implementation of Binary Search Tree") },
+            placeholder = { Text("Enter assignment topic or project title") },
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
             maxLines = 3
@@ -719,7 +740,7 @@ private fun CoverPageFormTab(
                 value = courseCode,
                 onValueChange = onCourseCodeChange,
                 label = { Text("Course Code *") },
-                placeholder = { Text("e.g. CSE-301") },
+                placeholder = { Text("Course Code") },
                 modifier = Modifier.weight(1f),
                 singleLine = true
             )
@@ -727,7 +748,7 @@ private fun CoverPageFormTab(
                 value = courseTitle,
                 onValueChange = onCourseTitleChange,
                 label = { Text("Course Title") },
-                placeholder = { Text("e.g. Database Systems") },
+                placeholder = { Text("Course Title") },
                 modifier = Modifier.weight(1.3f),
                 singleLine = true
             )
@@ -746,7 +767,7 @@ private fun CoverPageFormTab(
                 value = studentName,
                 onValueChange = onStudentNameChange,
                 label = { Text("Student Name *") },
-                placeholder = { Text("e.g. John Doe / Sadman Sakib") },
+                placeholder = { Text("Your full name") },
                 modifier = Modifier.weight(1.2f),
                 singleLine = true
             )
@@ -754,7 +775,7 @@ private fun CoverPageFormTab(
                 value = studentId,
                 onValueChange = onStudentIdChange,
                 label = { Text("Student ID / Roll *") },
-                placeholder = { Text("e.g. 2023-1-60-045") },
+                placeholder = { Text("ID or Roll") },
                 modifier = Modifier.weight(1f),
                 singleLine = true
             )
@@ -768,7 +789,7 @@ private fun CoverPageFormTab(
                 value = department,
                 onValueChange = onDepartmentChange,
                 label = { Text("Department") },
-                placeholder = { Text("e.g. Computer Science") },
+                placeholder = { Text("Department") },
                 modifier = Modifier.weight(1.2f),
                 singleLine = true
             )
@@ -776,7 +797,7 @@ private fun CoverPageFormTab(
                 value = batchSection,
                 onValueChange = onBatchSectionChange,
                 label = { Text("Batch / Section") },
-                placeholder = { Text("e.g. Batch 52, Sec B") },
+                placeholder = { Text("Batch / Section") },
                 modifier = Modifier.weight(1f),
                 singleLine = true
             )
@@ -791,7 +812,7 @@ private fun CoverPageFormTab(
             value = facultyName,
             onValueChange = onFacultyNameChange,
             label = { Text("Faculty / Teacher Name *") },
-            placeholder = { Text("e.g. Dr. Alan Turing") },
+            placeholder = { Text("Teacher / Professor name") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -804,7 +825,7 @@ private fun CoverPageFormTab(
                 value = facultyDesignation,
                 onValueChange = onFacultyDesignationChange,
                 label = { Text("Designation") },
-                placeholder = { Text("e.g. Associate Professor / Lecturer") },
+                placeholder = { Text("Designation (e.g. Lecturer)") },
                 modifier = Modifier.weight(1f),
                 singleLine = true
             )
@@ -812,7 +833,7 @@ private fun CoverPageFormTab(
                 value = facultyDepartment,
                 onValueChange = onFacultyDepartmentChange,
                 label = { Text("Faculty Department") },
-                placeholder = { Text("e.g. Dept. of Computer Science") },
+                placeholder = { Text("Department") },
                 modifier = Modifier.weight(1f),
                 singleLine = true
             )

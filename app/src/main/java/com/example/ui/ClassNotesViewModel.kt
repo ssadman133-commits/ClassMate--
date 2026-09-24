@@ -491,53 +491,22 @@ class ClassNotesViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun seedSampleFacultyIfEmpty() {
+    fun removeSampleFacultyIfPresent() {
         viewModelScope.launch {
-            val existing = repository.allFacultyMembers.first()
-            if (existing.isEmpty()) {
-                repository.insertFacultyMember(
-                    name = "Dr. Mohammad Tariqul Islam",
-                    designation = "Professor & Head",
-                    department = "Computer Science & Engineering",
-                    email = "tariqul.islam@univ.edu.bd",
-                    phone = "+880 1711-234567",
-                    roomNumber = "Room 402, Academic Bldg A",
-                    initials = "MTI",
-                    officeHours = "Sun & Tue: 2:00 PM - 4:00 PM"
-                )
-                repository.insertFacultyMember(
-                    name = "Fatima tuz Zohra",
-                    designation = "Assistant Professor",
-                    department = "Electrical & Electronic Engineering",
-                    email = "fzohra@univ.edu.bd",
-                    phone = "+880 1812-987654",
-                    roomNumber = "Room 305, Tech Center",
-                    initials = "FTZ",
-                    officeHours = "Mon & Wed: 11:00 AM - 1:00 PM"
-                )
-                repository.insertFacultyMember(
-                    name = "Kazi Aminul Haque",
-                    designation = "Lecturer",
-                    department = "Business Administration",
-                    email = "aminul.haque@univ.edu.bd",
-                    phone = "+880 1913-456789",
-                    roomNumber = "Room 210, Business Tower",
-                    initials = "KAH",
-                    officeHours = "Sunday to Thursday: 3:00 PM - 5:00 PM"
-                )
-            } else {
-                // Deduplicate any duplicates created by earlier concurrent calls
-                val seenKeys = mutableSetOf<String>()
-                existing.forEach { member ->
-                    val key = "${member.name.trim().lowercase()}_${member.department.trim().lowercase()}"
-                    if (key in seenKeys) {
-                        repository.deleteFacultyMember(member)
-                    } else {
-                        seenKeys.add(key)
-                    }
-                }
+            val sampleNames = setOf(
+                "Dr. Mohammad Tariqul Islam",
+                "Fatima tuz Zohra",
+                "Kazi Aminul Haque"
+            )
+            val current = repository.allFacultyMembers.first()
+            current.filter { it.name.trim() in sampleNames }.forEach {
+                repository.deleteFacultyMember(it)
             }
         }
+    }
+
+    fun seedSampleFacultyIfEmpty() {
+        // No-op: do not seed sample faculty so user starts with a clean directory
     }
 
     fun recordFocusSession(durationMinutes: Int, subject: String = "General Study") {

@@ -5,27 +5,29 @@ import androidx.compose.ui.graphics.Color
 // Light Palette
 val PrimaryLight = Color(0xFF2563EB)
 val OnPrimaryLight = Color(0xFFFFFFFF)
-val PrimaryContainerLight = Color(0xFFDBEAFE)
+val PrimaryContainerLight = Color(0xFFEFF6FF)
 val OnPrimaryContainerLight = Color(0xFF1E3A8A)
 
-val SecondaryLight = Color(0xFF0284C7)
+val SecondaryLight = Color(0xFFF59E0B)
 val OnSecondaryLight = Color(0xFFFFFFFF)
-val SecondaryContainerLight = Color(0xFFE0F2FE)
-val OnSecondaryContainerLight = Color(0xFF0369A1)
+val SecondaryContainerLight = Color(0xFFFEF3C7)
+val OnSecondaryContainerLight = Color(0xFF92400E)
 
 val TertiaryLight = Color(0xFFD97706)
 val OnTertiaryLight = Color(0xFFFFFFFF)
 val TertiaryContainerLight = Color(0xFFFEF3C7)
 val OnTertiaryContainerLight = Color(0xFF92400E)
 
-val BackgroundLight = Color(0xFFE2E8F0)
-val OnBackgroundLight = Color(0xFF0F172A)
+val BackgroundLight = Color(0xFFE8EDF5)
+val OnBackgroundLight = Color(0xFF1F2937)
 val SurfaceLight = Color(0xFFFFFFFF)
-val OnSurfaceLight = Color(0xFF0F172A)
+val OnSurfaceLight = Color(0xFF1F2937)
 val SurfaceVariantLight = Color(0xFFF1F5F9)
-val OnSurfaceVariantLight = Color(0xFF475569)
+val OnSurfaceVariantLight = Color(0xFF6B7280)
 val OutlineLight = Color(0xFFCBD5E1)
-val OutlineVariantLight = Color(0xFFE2E8F0)
+val OutlineVariantLight = Color(0xFFDCE2E9)
+
+val AccentAmber = Color(0xFFF59E0B)
 
 // Dark Palette
 val PrimaryDark = Color(0xFF60A5FA)
