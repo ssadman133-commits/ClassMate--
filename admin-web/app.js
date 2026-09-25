@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const STORAGE_EMAILJS_SERVICE = 'classmate_emailjs_service_id';
   const STORAGE_EMAILJS_TEMPLATE = 'classmate_emailjs_template_id';
   const STORAGE_EMAILJS_PUBLIC_KEY = 'classmate_emailjs_public_key';
+  const STORAGE_2FA_ENABLED = 'classmate_2fa_enabled';
 
   // Default Credentials
   const DEFAULT_EMAIL = 'ssadman133@gmail.com';
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const authStepRecovery = document.getElementById('authStepRecovery');
 
   const step1Form = document.getElementById('step1Form');
+  const step1BtnText = document.getElementById('step1BtnText');
   const loginEmailInput = document.getElementById('loginEmailInput');
   const loginPasswordInput = document.getElementById('loginPasswordInput');
   const togglePasswordBtn = document.getElementById('togglePasswordBtn');
@@ -38,6 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const otpCodeInput = document.getElementById('otpCodeInput');
   const backToStep1Btn = document.getElementById('backToStep1Btn');
   const resendOtpBtn = document.getElementById('resendOtpBtn');
+  const bypass2FABtn = document.getElementById('bypass2FABtn');
+  const settings2FAEnabled = document.getElementById('settings2FAEnabled');
 
   const recoveryForm = document.getElementById('recoveryForm');
   const recoveryKeyInput = document.getElementById('recoveryKeyInput');
@@ -148,6 +152,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (emailjsTemplateIdInput) emailjsTemplateIdInput.value = localStorage.getItem(STORAGE_EMAILJS_TEMPLATE) || '';
     if (emailjsPublicKeyInput) emailjsPublicKeyInput.value = localStorage.getItem(STORAGE_EMAILJS_PUBLIC_KEY) || '';
 
+    // 2-Step Verification Setting
+    const is2FA = localStorage.getItem(STORAGE_2FA_ENABLED) === 'true';
+    if (settings2FAEnabled) {
+      settings2FAEnabled.checked = is2FA;
+    }
+    if (step1BtnText) {
+      step1BtnText.innerText = is2FA ? 'Continue to 2-Step Verification' : 'Sign In to Admin Portal';
+    }
+
     if (savedUrl && savedKey && window.supabase) {
       try {
         supabaseClient = window.supabase.createClient(savedUrl, savedKey);
@@ -210,15 +223,15 @@ document.addEventListener('DOMContentLoaded', () => {
       // Direct Email Delivery Mode via EmailJS
       activeOtpDisplay.innerText = '••••••';
       if (otpBannerSubtext) otpBannerSubtext.innerText = 'Security Code Dispatched:';
-      if (otpBannerHint) otpBannerHint.innerText = `Confidential OTP sent directly to ${targetEmail}`;
+      if (otpBannerHint) otpBannerHint.innerText = `Confidential OTP sent directly to ${targetEmail}. Check inbox and spam folder.`;
 
       window.emailjs.init(publicKey);
       window.emailjs.send(serviceId, templateId, {
         to_email: targetEmail,
         email: targetEmail,
         user_email: targetEmail,
-        to_name: 'Sadman Sakib',
-        name: 'Sadman Sakib',
+        to_name: 'Admin',
+        name: 'Admin',
         otp_code: code,
         message: `Your ClassMate Admin verification code is: ${code}`,
         app_name: 'ClassMate Admin',
@@ -228,17 +241,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }).catch(err => {
         console.error('EmailJS sending failed:', err);
         const errDetails = err?.text || err?.message || 'Check EmailJS connection';
-        // Fallback display if email service throws error
-        activeOtpDisplay.innerText = code;
-        if (otpBannerHint) otpBannerHint.innerText = `Email sending failed (${errDetails}). Use temporary display code above.`;
+        activeOtpDisplay.innerText = 'Dispatch Error';
+        if (otpBannerHint) otpBannerHint.innerText = `Email sending failed (${errDetails}). Use Master Recovery Key or Bypass OTP below.`;
         showToast(`Email error: ${errDetails}`, 'warning');
       });
     } else {
-      // Local/Testing Mode (keys not provided yet)
-      activeOtpDisplay.innerText = code;
-      if (otpBannerSubtext) otpBannerSubtext.innerText = 'Test Mode OTP (EmailJS not configured):';
-      if (otpBannerHint) otpBannerHint.innerText = 'Click code to auto-fill or enter Security & API settings to send to real Gmail.';
-      showToast(`6-Digit OTP: ${code} (Test Mode)`, 'info');
+      // Notice when EmailJS is not configured
+      activeOtpDisplay.innerText = 'EmailJS Not Configured';
+      if (otpBannerSubtext) otpBannerSubtext.innerText = 'Email Service Notice:';
+      if (otpBannerHint) otpBannerHint.innerText = 'EmailJS is not configured in Settings. Please use Master Recovery Key or click "Bypass OTP" below to login.';
+      showToast('Notice: EmailJS not configured. You can use Master Recovery Key or Bypass OTP.', 'info');
     }
   }
 
@@ -257,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const email = localStorage.getItem(STORAGE_ADMIN_EMAIL) || DEFAULT_EMAIL;
     headerUserEmail.innerText = email;
-    showToast('2-Step Verification Passed! Welcome, Admin.', 'success');
+    showToast('Welcome to ClassMate Admin Portal!', 'success');
   }
 
   function setupAuthHandlers() {
@@ -287,7 +299,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Step 1 Success -> Proceed to Step 2 OTP
+      // Check if 2-Step Verification is active
+      const is2FA = localStorage.getItem(STORAGE_2FA_ENABLED) === 'true';
+      if (!is2FA) {
+        // Direct password login (no OTP needed)
+        grantAccess(rememberMeCheck.checked);
+        return;
+      }
+
+      // 2FA Enabled -> Proceed to Step 2 OTP
       targetEmailLabel.innerText = enteredEmail;
       generateNewOtp();
       showAuthStep(2);
@@ -295,9 +315,17 @@ document.addEventListener('DOMContentLoaded', () => {
       otpCodeInput.focus();
     });
 
+    // Bypass OTP Button
+    if (bypass2FABtn) {
+      bypass2FABtn.addEventListener('click', () => {
+        grantAccess(rememberMeCheck.checked);
+        showToast('Direct login granted.', 'success');
+      });
+    }
+
     // Click active OTP banner to auto-fill for convenience
     activeOtpDisplay.addEventListener('click', () => {
-      if (activeGeneratedOtp) {
+      if (activeGeneratedOtp && localStorage.getItem(STORAGE_EMAILJS_SERVICE)) {
         otpCodeInput.value = activeGeneratedOtp;
       }
     });
@@ -1065,6 +1093,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (newPass) {
         localStorage.setItem(STORAGE_ADMIN_PASS, newPass);
+      }
+      settingsPasswordInput.value = '';
+
+      // Save 2-Step Verification setting
+      if (settings2FAEnabled) {
+        localStorage.setItem(STORAGE_2FA_ENABLED, settings2FAEnabled.checked ? 'true' : 'false');
       }
 
       const url = supabaseUrlInput.value.trim();
