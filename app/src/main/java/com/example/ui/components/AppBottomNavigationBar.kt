@@ -18,6 +18,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -81,15 +82,15 @@ fun AppBottomNavigationBar(
     Surface(
         modifier = modifier.fillMaxWidth(),
         tonalElevation = 0.dp,
-        shadowElevation = 8.dp,
-        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 0.dp,
+        color = MaterialTheme.colorScheme.background,
         border = BorderStroke(
             width = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.outlineVariant
         )
     ) {
         NavigationBar(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.background,
             tonalElevation = 0.dp
         ) {
             tabs.forEach { tab ->
@@ -117,11 +118,11 @@ fun AppBottomNavigationBar(
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                        selectedIconColor = Color(0xFF2DD4BF),
+                        selectedTextColor = Color(0xFF2DD4BF),
+                        indicatorColor = Color(0xFF122E2B),
+                        unselectedIconColor = Color(0xFF64748B),
+                        unselectedTextColor = Color(0xFF64748B)
                     ),
                     modifier = Modifier.testTag(tab.testTag)
                 )

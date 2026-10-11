@@ -642,7 +642,17 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showAboutDialog = false },
             icon = { com.example.ui.components.ClassMateAppLogo(size = 48.dp) },
-            title = { Text("ClassMate", fontWeight = FontWeight.Bold) },
+            title = {
+                val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Text("Class", fontWeight = FontWeight.Bold)
+                    Text(
+                        "Mate",
+                        fontWeight = FontWeight.Bold,
+                        color = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB)
+                    )
+                }
+            },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Version 1.0 (ClassMate Suite)", fontWeight = FontWeight.SemiBold)

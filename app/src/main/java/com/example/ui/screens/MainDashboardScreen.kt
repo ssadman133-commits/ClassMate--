@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ChevronRight
@@ -103,6 +104,7 @@ import com.example.ui.components.CompactSponsorCarousel
 import com.example.ui.components.DashboardHubAdBanner
 import com.example.ui.components.UpcomingAlertsBottomSheet
 import com.example.util.CountryDetector
+import com.example.ui.theme.*
 import java.util.Calendar
 
 // Reusable static shapes & brushes to completely eliminate recomposition GC overhead
@@ -285,7 +287,7 @@ fun MainDashboardScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = if (isDark) Color(0xFF0B0F19) else Color(0xFFE8EDF5),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
@@ -293,91 +295,120 @@ fun MainDashboardScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        com.example.ui.components.ClassMateAppLogo(size = 36.dp)
+                        com.example.ui.components.ClassMateAppLogo(size = 38.dp)
                         Column {
-                            Text(
-                                text = "ClassMate",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isDark) Color.White else Color(0xFF1F2937)
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Class",
+                                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDark) Color.White else Color(0xFF1F2937)
+                                )
+                                Text(
+                                    text = "Mate",
+                                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB)
+                                )
+                            }
                             Text(
                                 text = "Student Productivity Suite",
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                                color = if (isDark) Color(0xFF94A3B8) else Color(0xFF6B7280)
+                                color = if (isDark) Color(0xFF8E9DA8) else Color(0xFF6B7280)
                             )
                         }
                     }
                 },
                 actions = {
-                    if (onImportSharedNote != null) {
-                        IconButton(
-                            onClick = onImportSharedNote,
-                            modifier = Modifier.testTag("dashboard_import_note_button")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.FileDownload,
-                                contentDescription = "Import Shared Note",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-
-                    // Refresh Button to quickly sync sponsors & updates
-                    IconButton(
-                        onClick = onRefresh,
-                        enabled = !isRefreshing,
-                        modifier = Modifier.testTag("dashboard_refresh_button")
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(end = 12.dp)
                     ) {
-                        if (isRefreshing) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = "Refresh Dashboard",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-
-                    // Notification Bell replacing Settings icon
-                    IconButton(
-                        onClick = { showNotificationSheet = true },
-                        modifier = Modifier
-                            .padding(end = 6.dp)
-                            .testTag("notification_bell_button")
-                    ) {
-                        BadgedBox(
-                            badge = {
-                                if (activeAlerts.isNotEmpty()) {
-                                    Badge(
-                                        containerColor = MaterialTheme.colorScheme.error,
-                                        contentColor = MaterialTheme.colorScheme.onError
-                                    ) {
-                                        Text(
-                                            text = if (activeAlerts.size > 9) "9+" else activeAlerts.size.toString(),
-                                            fontSize = 9.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
+                        if (onImportSharedNote != null) {
+                            Surface(
+                                shape = CircleShape,
+                                color = if (isDark) Color(0xFF121D21) else Color(0xFFEFF6FF),
+                                border = BorderStroke(1.dp, if (isDark) Color(0xFF1A2B31) else Color(0xFFDBEAFE)),
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .clickable(onClick = onImportSharedNote)
+                                    .testTag("dashboard_import_note_button")
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.FileDownload,
+                                        contentDescription = "Import Shared Note",
+                                        tint = Color(0xFF2DD4BF),
+                                        modifier = Modifier.size(18.dp)
+                                    )
                                 }
                             }
+                        }
+
+                        // Refresh Button to quickly sync sponsors & updates
+                        Surface(
+                            shape = CircleShape,
+                            color = if (isDark) Color(0xFF121D21) else Color(0xFFEFF6FF),
+                            border = BorderStroke(1.dp, if (isDark) Color(0xFF1A2B31) else Color(0xFFDBEAFE)),
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .clickable(enabled = !isRefreshing, onClick = onRefresh)
+                                .testTag("dashboard_refresh_button")
                         ) {
-                            Icon(
-                                imageVector = if (activeAlerts.isNotEmpty()) Icons.Default.NotificationsActive else Icons.Default.Notifications,
-                                contentDescription = "Alerts & Reminders",
-                                tint = if (activeAlerts.isNotEmpty()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(24.dp)
-                            )
+                            Box(contentAlignment = Alignment.Center) {
+                                if (isRefreshing) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        strokeWidth = 2.dp,
+                                        color = Color(0xFF2DD4BF)
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Default.Refresh,
+                                        contentDescription = "Refresh Dashboard",
+                                        tint = Color(0xFF2DD4BF),
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Notification Bell with Mint dot
+                        Surface(
+                            shape = CircleShape,
+                            color = if (isDark) Color(0xFF121D21) else Color(0xFFEFF6FF),
+                            border = BorderStroke(1.dp, if (isDark) Color(0xFF1A2B31) else Color(0xFFDBEAFE)),
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .clickable { showNotificationSheet = true }
+                                .testTag("notification_bell_button")
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Notifications,
+                                    contentDescription = "Alerts & Reminders",
+                                    tint = if (isDark) Color(0xFFCBD5E1) else Color(0xFF475569),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                // Active indicator dot
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .align(Alignment.TopEnd)
+                                        .offset(x = (-6).dp, y = 6.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFF2DD4BF))
+                                )
+                            }
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isDark) Color(0xFF0B0F19) else Color(0xFFE8EDF5)
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         },
@@ -500,35 +531,43 @@ fun MainDashboardScreen(
                     ) {
                         Surface(
                             shape = RoundedCornerShape(11.dp),
-                            color = if (isDark) Color(0xFF1E293B) else Color(0xFFEFF6FF),
-                            border = BorderStroke(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFDBEAFE)),
+                            color = if (isDark) Color(0xFF102E28) else Color(0xFFCCFBF1),
+                            border = BorderStroke(1.dp, if (isDark) Color(0xFF163E36) else Color(0xFF99F6E4)),
                             modifier = Modifier.size(36.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.School,
                                     contentDescription = null,
-                                    tint = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB),
+                                    tint = Color(0xFF2DD4BF),
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
                         }
-                        Text(
-                            text = "Academic Workspace",
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
-                            fontWeight = FontWeight.Bold,
-                            color = if (isDark) Color.White else Color(0xFF1F2937)
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Academic ",
+                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                                fontWeight = FontWeight.Bold,
+                                color = if (isDark) Color.White else Color(0xFF1F2937)
+                            )
+                            Text(
+                                text = "Workspace",
+                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF2DD4BF)
+                            )
+                        }
                     }
 
                     // Clean, harmonious circular search button matching workspace aesthetic
                     Surface(
                         shape = CircleShape,
-                        color = if (isDark) Color(0xFF1E293B) else Color(0xFFEFF6FF),
-                        border = BorderStroke(1.dp, if (isDark) Color(0xFF334155) else Color(0xFFDBEAFE)),
-                        shadowElevation = 1.dp,
+                        color = if (isDark) Color(0xFF121D21) else Color(0xFFEFF6FF),
+                        border = BorderStroke(1.dp, if (isDark) Color(0xFF1A2B31) else Color(0xFFDBEAFE)),
+                        shadowElevation = 0.dp,
                         modifier = Modifier
-                            .size(38.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .clickable(onClick = onNavigateToSearch)
                             .testTag("academic_search_button")
@@ -537,8 +576,8 @@ fun MainDashboardScreen(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "Search Notes",
-                                tint = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB),
-                                modifier = Modifier.size(20.dp)
+                                tint = Color(0xFF2DD4BF),
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
@@ -555,8 +594,8 @@ fun MainDashboardScreen(
                     HubGridCard(
                         title = "Class Notes &\nPhotos",
                         icon = Icons.Default.MenuBook,
-                        iconContainerColor = if (isDark) Color(0xFF0C4A6E) else Color(0xFFE0F2FE),
-                        iconTint = if (isDark) Color(0xFF38BDF8) else Color(0xFF0284C7),
+                        iconContainerColor = if (isDark) SoftIconSkyBgDark else SoftIconSkyBgLight,
+                        iconTint = if (isDark) SoftIconSky else Color(0xFF0284C7),
                         testTag = "hub_class_notes_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToClassNotes
@@ -565,8 +604,8 @@ fun MainDashboardScreen(
                     HubGridCard(
                         title = "Study Planner",
                         icon = Icons.Default.CalendarMonth,
-                        iconContainerColor = if (isDark) Color(0xFF312E81) else Color(0xFFEEF2FF),
-                        iconTint = if (isDark) Color(0xFF818CF8) else Color(0xFF4F46E5),
+                        iconContainerColor = if (isDark) SoftIconPurpleBgDark else SoftIconPurpleBgLight,
+                        iconTint = if (isDark) SoftIconPurple else Color(0xFF7E22CE),
                         testTag = "hub_study_planner_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToStudyPlanner
@@ -583,8 +622,8 @@ fun MainDashboardScreen(
                     HubGridCard(
                         title = "CGPA Calculator",
                         icon = Icons.Default.Calculate,
-                        iconContainerColor = if (isDark) Color(0xFF134E4A) else Color(0xFFCCFBF1),
-                        iconTint = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0D9488),
+                        iconContainerColor = if (isDark) SoftIconTealBgDark else SoftIconTealBgLight,
+                        iconTint = if (isDark) SoftIconTeal else Color(0xFF0F766E),
                         testTag = "hub_cgpa_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToCgpa
@@ -593,8 +632,8 @@ fun MainDashboardScreen(
                     HubGridCard(
                         title = "Tuition Fee\nCalculator",
                         icon = Icons.Default.Payments,
-                        iconContainerColor = if (isDark) Color(0xFF064E3B) else Color(0xFFD1FAE5),
-                        iconTint = if (isDark) Color(0xFF34D399) else Color(0xFF059669),
+                        iconContainerColor = if (isDark) SoftIconMintBgDark else SoftIconMintBgLight,
+                        iconTint = if (isDark) SoftIconMint else Color(0xFF059669),
                         testTag = "hub_tuition_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToTuition
@@ -612,8 +651,8 @@ fun MainDashboardScreen(
                         title = "Assignments",
                         badgeText = if (upcomingAssignmentCount > 0) "$upcomingAssignmentCount Due" else null,
                         icon = Icons.Default.Assignment,
-                        iconContainerColor = if (isDark) Color(0xFF0F2E23) else Color(0xFFECFDF5),
-                        iconTint = if (isDark) Color(0xFF6EE7B7) else Color(0xFF10B981),
+                        iconContainerColor = if (isDark) SoftIconPeachBgDark else SoftIconPeachBgLight,
+                        iconTint = if (isDark) SoftIconPeach else Color(0xFFD97706),
                         testTag = "hub_assignments_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToAssignments
@@ -623,8 +662,8 @@ fun MainDashboardScreen(
                         title = "Exams",
                         badgeText = if (upcomingExamCount > 0) "$upcomingExamCount" else null,
                         icon = Icons.Default.EventNote,
-                        iconContainerColor = if (isDark) Color(0xFF4C0519) else Color(0xFFFFE4E6),
-                        iconTint = if (isDark) Color(0xFFFB7185) else Color(0xFFE11D48),
+                        iconContainerColor = if (isDark) SoftIconCoralBgDark else SoftIconCoralBgLight,
+                        iconTint = if (isDark) SoftIconCoral else Color(0xFFE11D48),
                         testTag = "hub_exams_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToExams
@@ -641,8 +680,8 @@ fun MainDashboardScreen(
                     HubGridCard(
                         title = "Class Routine",
                         icon = Icons.Default.CalendarMonth,
-                        iconContainerColor = if (isDark) Color(0xFF0C4A6E) else Color(0xFFE0F2FE),
-                        iconTint = if (isDark) Color(0xFF38BDF8) else Color(0xFF0284C7),
+                        iconContainerColor = if (isDark) SoftIconBlueBgDark else SoftIconBlueBgLight,
+                        iconTint = if (isDark) SoftIconBlue else Color(0xFF2563EB),
                         testTag = "hub_routine_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToRoutine
@@ -651,8 +690,8 @@ fun MainDashboardScreen(
                     HubGridCard(
                         title = "Focus Timer",
                         icon = Icons.Default.Timer,
-                        iconContainerColor = if (isDark) Color(0xFF312E81) else Color(0xFFEDE9FE),
-                        iconTint = if (isDark) Color(0xFFA78BFA) else Color(0xFF7C3AED),
+                        iconContainerColor = if (isDark) SoftIconVioletBgDark else SoftIconVioletBgLight,
+                        iconTint = if (isDark) SoftIconViolet else Color(0xFF6D28D9),
                         testTag = "hub_timer_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToTimer
@@ -678,8 +717,8 @@ fun MainDashboardScreen(
                     HubGridCard(
                         title = "Cover Page\nGenerator",
                         icon = Icons.Default.Description,
-                        iconContainerColor = if (isDark) Color(0xFF1E1B4B) else Color(0xFFEEF2FF),
-                        iconTint = if (isDark) Color(0xFF818CF8) else Color(0xFF4F46E5),
+                        iconContainerColor = if (isDark) SoftIconIndigoBgDark else SoftIconIndigoBgLight,
+                        iconTint = if (isDark) SoftIconIndigo else Color(0xFF4338CA),
                         testTag = "hub_cover_page_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToCoverPage
@@ -688,8 +727,8 @@ fun MainDashboardScreen(
                     HubGridCard(
                         title = "Faculty\nInfo",
                         icon = Icons.Default.School,
-                        iconContainerColor = if (isDark) Color(0xFF1E3A8A) else Color(0xFFDBEAFE),
-                        iconTint = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB),
+                        iconContainerColor = if (isDark) SoftIconGoldBgDark else SoftIconGoldBgLight,
+                        iconTint = if (isDark) SoftIconGold else Color(0xFFCA8A04),
                         testTag = "hub_faculty_info_card",
                         modifier = Modifier.weight(1f),
                         onClick = onNavigateToFacultyInfo
@@ -870,129 +909,103 @@ fun HubGridCard(
 ) {
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
-    val containerColor = if (isDark) Color(0xFF131B2E) else Color.White
-    val titleColor = if (isDark) Color(0xFFF8FAFC) else Color(0xFF1E293B)
-    val chevronTint = if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8)
-    val borderColor = if (isDark) Color(0xFF1E293B) else Color(0xFFD8DFE8)
+    val containerColor = if (isDark) MaterialTheme.colorScheme.surface else Color.White
+    val titleColor = if (isDark) MaterialTheme.colorScheme.onSurface else Color(0xFF1E293B)
+    val chevronTint = if (isDark) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f) else Color(0xFF94A3B8)
+    val borderBrush = if (isDark) {
+        Brush.horizontalGradient(
+            colors = listOf(
+                iconTint,
+                iconTint.copy(alpha = 0.5f),
+                Color(0xFF1E2D34),
+                Color(0xFF162328)
+            )
+        )
+    } else {
+        Brush.horizontalGradient(
+            listOf(iconTint.copy(alpha = 0.45f), Color(0xFFDFE5E8))
+        )
+    }
 
-    Box(
+    Card(
+        onClick = onClick,
         modifier = modifier
-            .height(cardHeight + if (!isDark) 3.5.dp else 0.dp)
+            .fillMaxWidth()
+            .height(cardHeight)
+            .testTag(testTag),
+        shape = GridCardCornerShape,
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = BorderStroke(1.2.dp, borderBrush),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 2.dp
+        )
     ) {
-        if (!isDark) {
-            // Layer 1: Ambient soft shadow aura (natural, subtle)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(cardHeight)
-                    .offset(y = 1.5.dp)
-                    .clip(GridCardCornerShape)
-                    .background(Color(0xFF94A3B8).copy(alpha = 0.15f))
-            )
-
-            // Layer 2: Soft directional drop shadow (gentle 3.5dp natural depth)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(cardHeight)
-                    .padding(horizontal = 2.dp)
-                    .offset(y = 3.5.dp)
-                    .clip(GridCardCornerShape)
-                    .background(CardDropShadowBrush)
-            )
-        }
-
-        // Layer 3: Main interactive card
-        Card(
-            onClick = onClick,
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(cardHeight)
-                .testTag(testTag),
-            shape = GridCardCornerShape,
-            colors = CardDefaults.cardColors(containerColor = containerColor),
-            border = BorderStroke(1.dp, borderColor),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = if (isDark) 3.dp else 1.5.dp,
-                pressedElevation = 5.dp
-            )
+                .fillMaxSize()
+                .padding(horizontal = 14.dp, vertical = 12.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 14.dp, vertical = 12.dp)
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Subtle pastel decorative aura in top right corner (matching reference app)
-                Box(
-                    modifier = Modifier
-                        .size(52.dp)
-                        .align(Alignment.TopEnd)
-                        .offset(x = 16.dp, y = (-16).dp)
-                        .clip(CircleShape)
-                        .background(iconContainerColor.copy(alpha = if (isDark) 0.12f else 0.18f))
-                )
-
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.SpaceBetween
+                // Top Row: Soft squircle icon + subtle chevron or badge
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Top Row: Soft squircle icon + subtle chevron or badge
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    Box(
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(GridIconCornerShape)
+                            .background(iconContainerColor),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(GridIconCornerShape)
-                                .background(iconContainerColor),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = null,
-                                tint = iconTint,
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-
-                        if (badgeText != null) {
-                            Surface(
-                                shape = GridBadgeCornerShape,
-                                color = if (isDark) Color(0xFF1976D2) else Color(0xFF2563EB)
-                            ) {
-                                Text(
-                                    text = badgeText,
-                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
-                                )
-                            }
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.ChevronRight,
-                                contentDescription = null,
-                                tint = chevronTint,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = iconTint,
+                            modifier = Modifier.size(22.dp)
+                        )
                     }
 
-                    // Bottom: Clean, bold Title (matching reference app layout)
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontSize = 13.5.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            lineHeight = 16.5.sp
-                        ),
-                        color = titleColor,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    if (badgeText != null) {
+                        Surface(
+                            shape = GridBadgeCornerShape,
+                            color = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+                        ) {
+                            Text(
+                                text = badgeText,
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                fontWeight = FontWeight.Bold,
+                                color = if (isDark) MaterialTheme.colorScheme.onPrimaryContainer else Color.White,
+                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
+                            )
+                        }
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = chevronTint,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
+
+                // Bottom: Clean, bold Title
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 13.5.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 16.5.sp
+                    ),
+                    color = titleColor,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }
@@ -1012,24 +1025,21 @@ fun TodayScheduleHighlightCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = if (isDark) 3.dp else 7.dp,
-                shape = RoundedCornerShape(18.dp),
-                spotColor = shadowSpot,
-                ambientColor = shadowAmbient
-            )
             .clip(RoundedCornerShape(18.dp))
             .clickable(onClick = onClick)
             .testTag("dashboard_today_schedule_card"),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isDark) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f) else Color.White
+            containerColor = if (isDark) MaterialTheme.colorScheme.surface else Color.White
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = if (isDark) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f) else Color(0xFFEEF2F6)
+            color = if (isDark) MaterialTheme.colorScheme.outlineVariant else Color(0xFFDFE5E8)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 2.dp else 3.dp)
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 2.dp
+        )
     ) {
         Column(
             modifier = Modifier
@@ -1246,37 +1256,27 @@ fun TodayAcademicAgendaBanner(
         modifier = modifier
             .fillMaxWidth()
             .height(158.dp)
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(18.dp),
-                spotColor = Color(0x450F172A),
-                ambientColor = Color(0x220F172A)
-            )
             .clip(RoundedCornerShape(18.dp))
             .clickable(onClick = onClickAction)
             .testTag("offline_academic_agenda_banner"),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF0F172A) // Dark Slate Blue / Midnight matching app theme
+            containerColor = Color(0xFF10191D)
         ),
         border = BorderStroke(
-            width = 1.dp,
-            color = Color(0xFF1E293B)
+            width = 1.2.dp,
+            brush = Brush.horizontalGradient(
+                listOf(
+                    Color(0xFF2DD4BF),
+                    Color(0xFF2DD4BF).copy(alpha = 0.5f),
+                    Color(0xFF1B2C33),
+                    Color(0xFF16252B)
+                )
+            )
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Subtle aesthetic background watermark icon
-            Icon(
-                imageVector = Icons.Default.School,
-                contentDescription = null,
-                tint = Color(0xFF38BDF8).copy(alpha = 0.05f),
-                modifier = Modifier
-                    .size(130.dp)
-                    .align(Alignment.CenterEnd)
-                    .offset(x = 20.dp, y = 10.dp)
-            )
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -1295,26 +1295,22 @@ fun TodayAcademicAgendaBanner(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(24.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(
-                                    Brush.linearGradient(
-                                        listOf(Color(0xFF0284C7), Color(0xFF0369A1))
-                                    )
-                                ),
+                                .size(28.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFF102E28)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.EventNote,
+                                imageVector = Icons.Default.CalendarMonth,
                                 contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(14.dp)
+                                tint = Color(0xFF2DD4BF),
+                                modifier = Modifier.size(16.dp)
                             )
                         }
 
                         Text(
                             text = "$todayDayName's Agenda",
-                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.5.sp),
+                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFF1F5F9)
                         )
@@ -1322,13 +1318,14 @@ fun TodayAcademicAgendaBanner(
                         // Status chip
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = if (todayClasses.isNotEmpty()) Color(0xFF0369A1).copy(alpha = 0.35f) else Color(0xFF1E293B)
+                            color = Color(0xFF132828),
+                            border = BorderStroke(0.5.dp, Color(0xFF1B3D3B))
                         ) {
                             Text(
                                 text = if (todayClasses.isNotEmpty()) "${todayClasses.size} ${if (todayClasses.size == 1) "Class" else "Classes"}" else "No Classes",
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                                 fontWeight = FontWeight.SemiBold,
-                                color = if (todayClasses.isNotEmpty()) Color(0xFF38BDF8) else Color(0xFF94A3B8),
+                                color = Color(0xFF2DD4BF),
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
                         }
@@ -1340,29 +1337,29 @@ fun TodayAcademicAgendaBanner(
                     ) {
                         Text(
                             text = "View",
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF38BDF8)
+                            color = Color(0xFF2DD4BF)
                         )
                         Icon(
                             imageVector = Icons.Default.ChevronRight,
                             contentDescription = null,
-                            tint = Color(0xFF38BDF8),
-                            modifier = Modifier.size(14.dp)
+                            tint = Color(0xFF2DD4BF),
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
-
-                // Middle Spotlight Section
+                // Middle Spotlight Section (Banner matching screenshot)
                 if (todayClasses.isNotEmpty()) {
                     val firstClass = todayClasses[0]
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFF1E293B).copy(alpha = 0.7f))
+                            .background(Color(0xFF132024))
+                            .border(BorderStroke(1.dp, Color(0xFF1B2D33)), RoundedCornerShape(10.dp))
                             .clickable(onClick = onNavigateToRoutine)
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                            .padding(horizontal = 10.dp, vertical = 7.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -1385,110 +1382,48 @@ fun TodayAcademicAgendaBanner(
 
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = Color(0xFF0F172A).copy(alpha = 0.8f),
-                            border = BorderStroke(1.dp, Color(0xFF334155))
+                            color = Color(0xFF0F171A),
+                            border = BorderStroke(1.dp, Color(0xFF1B2D33))
                         ) {
                             Text(
                                 text = "${firstClass.startTime} - ${firstClass.endTime}",
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF38BDF8),
+                                color = Color(0xFF2DD4BF),
                                 modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
                             )
                         }
                     }
-                } else if (upcomingExams.isNotEmpty() || pendingAssignments.isNotEmpty()) {
-                    val nextExam = upcomingExams.firstOrNull()
-                    val nextAssignment = pendingAssignments.firstOrNull()
-                    val spotlightClick = if (nextExam != null) onNavigateToExams else onNavigateToAssignments
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFF1E293B).copy(alpha = 0.7f))
-                            .clickable(onClick = spotlightClick)
-                            .padding(horizontal = 10.dp, vertical = 7.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (nextExam != null) {
-                            val daysUntil = ((nextExam.examDate - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)).coerceAtLeast(0)
-                            Icon(
-                                imageVector = Icons.Default.EventNote,
-                                contentDescription = null,
-                                tint = Color(0xFFFF9100),
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Exam: ${nextExam.courseName} (${nextExam.title})",
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.5.sp),
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = if (daysUntil == 0L) "Happening Today!" else "Scheduled in $daysUntil day${if (daysUntil > 1) "s" else ""}",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
-                                    color = if (daysUntil <= 1) Color(0xFFFF9100) else Color(0xFF94A3B8)
-                                )
-                            }
-                        } else if (nextAssignment != null) {
-                            val daysUntil = ((nextAssignment.dueDate - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)).coerceAtLeast(0)
-                            Icon(
-                                imageVector = Icons.Default.Assignment,
-                                contentDescription = null,
-                                tint = Color(0xFF4ADE80),
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Assignment: ${nextAssignment.title}",
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.5.sp),
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = "${nextAssignment.courseName} • Due in $daysUntil day${if (daysUntil > 1) "s" else ""}",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
-                                    color = Color(0xFF94A3B8)
-                                )
-                            }
-                        }
-                    }
                 } else {
-                    // No classes or urgent pending tasks
+                    // No classes or urgent pending tasks (Matches screenshot banner)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0xFF1E293B).copy(alpha = 0.5f))
+                            .background(Color(0xFF132024))
+                            .border(BorderStroke(1.dp, Color(0xFF1B2D33)), RoundedCornerShape(10.dp))
                             .clickable(onClick = onNavigateToRoutine)
                             .padding(horizontal = 10.dp, vertical = 7.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.CalendarMonth,
+                            imageVector = Icons.Default.AutoAwesome,
                             contentDescription = null,
-                            tint = Color(0xFF38BDF8),
-                            modifier = Modifier.size(18.dp)
+                            tint = Color(0xFF2DD4BF),
+                            modifier = Modifier.size(16.dp)
                         )
                         Text(
                             text = "No classes scheduled today! Great time to study or relax.",
                             style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                             color = Color(0xFF94A3B8),
-                            maxLines = 2,
+                            maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
 
-                // Bottom 3 Quick Status Indicators
+                // Bottom 3 Quick Status Indicators (Exact match to screenshot)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1496,21 +1431,21 @@ fun TodayAcademicAgendaBanner(
                     AcademicStatPill(
                         label = "Classes",
                         value = "${todayClasses.size}",
-                        accentColor = Color(0xFF38BDF8),
+                        accentColor = Color(0xFF00C0FF),
                         onClick = onNavigateToRoutine,
                         modifier = Modifier.weight(1f)
                     )
                     AcademicStatPill(
                         label = "Tasks",
                         value = "${pendingAssignments.size}",
-                        accentColor = Color(0xFF4ADE80),
+                        accentColor = Color(0xFF34D399),
                         onClick = onNavigateToAssignments,
                         modifier = Modifier.weight(1f)
                     )
                     AcademicStatPill(
                         label = "Exams",
                         value = "${upcomingExams.size}",
-                        accentColor = Color(0xFFFF9100),
+                        accentColor = Color(0xFFFBBF24),
                         onClick = onNavigateToExams,
                         modifier = Modifier.weight(1f)
                     )
@@ -1531,12 +1466,12 @@ private fun AcademicStatPill(
     Surface(
         onClick = onClick,
         modifier = modifier,
-        shape = RoundedCornerShape(8.dp),
-        color = Color(0xFF1E293B).copy(alpha = 0.7f),
-        border = BorderStroke(0.5.dp, Color(0xFF334155).copy(alpha = 0.6f))
+        shape = RoundedCornerShape(10.dp),
+        color = Color(0xFF132024),
+        border = BorderStroke(1.dp, Color(0xFF1B2D33))
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 6.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -1546,18 +1481,12 @@ private fun AcademicStatPill(
                     .clip(CircleShape)
                     .background(accentColor)
             )
-            Spacer(modifier = Modifier.width(5.dp))
+            Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = value,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
-                color = Color(0xFF94A3B8),
+                text = "$value $label",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.5.sp),
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

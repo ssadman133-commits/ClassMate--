@@ -407,13 +407,18 @@ fun WeeklyRoutineView(
                         MaterialTheme.colorScheme.surface
                     }
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = if (isToday) 3.dp else 1.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 border = if (isToday) {
                     androidx.compose.foundation.BorderStroke(
-                        1.5.dp,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                        1.dp,
+                        MaterialTheme.colorScheme.primary
                     )
-                } else null
+                } else {
+                    androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
             ) {
                 Column(
                     modifier = Modifier
@@ -616,7 +621,8 @@ fun RoutineItemCard(
             .testTag("routine_card_${item.id}"),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp, pressedElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier

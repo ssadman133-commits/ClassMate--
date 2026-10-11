@@ -121,17 +121,7 @@ object NoteSharingManager {
             }
         }
 
-        // 2. Build clean deep link (no giant base64 text)
-        val deepLink = buildDeepLink(
-            courseName = courseName,
-            courseCode = courseCode,
-            topicName = topicName,
-            importance = avgImportance,
-            caption = firstCaption,
-            noteCount = noteCount
-        )
-
-        // 3. Attractive, compact, professional English share message
+        // 2. Clean, compact, professional share message (without app links)
         val shareMessage = buildString {
             append("📚 *Course:* $courseName")
             if (!courseCode.isNullOrBlank()) append(" ($courseCode)")
@@ -142,12 +132,7 @@ object NoteSharingManager {
                 append("\n📝 \"$firstCaption\"")
             }
             append("\n⭐ Priority: ${"★".repeat(avgImportance)}")
-            append("\n\n")
-            append("Shared via ClassMate — Student Productivity Suite.\n")
-            append("📲 Download the app to organize and view all course notes:\n")
-            append("👉 $DEFAULT_APP_DOWNLOAD_LINK\n\n")
-            append("⚡ *Direct Link to Open & Save in ClassMate:*\n")
-            append(deepLink)
+            append("\n\nShared via ClassMate")
         }
 
         Pair(shareMessage, imageUris)
@@ -267,11 +252,13 @@ object NoteSharingManager {
                 )
             }
 
-            // 2. Try parsing plain text message format (Extracting Course and Topic lines)
-            if (cleanInput.contains("Topic:") || cleanInput.contains("Course:") || cleanInput.contains("📚")) {
+            // 2. Try parsing plain text message format (Extracting Course, Topic, Caption, and Priority lines)
+            if (cleanInput.contains("Topic:") || cleanInput.contains("Course:") || cleanInput.contains("📚") || cleanInput.contains("📌")) {
                 var detectedCourse: String? = null
                 var detectedTopic: String? = null
                 var detectedCode: String? = null
+                var detectedCaption: String? = null
+                var detectedImportance = 3
 
                 cleanInput.lines().forEach { line ->
                     val trimmed = line.trim()
@@ -285,15 +272,23 @@ object NoteSharingManager {
                         }
                     } else if (trimmed.contains("Topic:") || trimmed.startsWith("📌")) {
                         detectedTopic = trimmed.replace("📌", "").replace("Topic:", "").replace("*", "").trim()
+                    } else if (trimmed.startsWith("📝") || trimmed.contains("Note:")) {
+                        detectedCaption = trimmed.replace("📝", "").replace("Note:", "").replace("\"", "").replace("*", "").trim()
+                    } else if (trimmed.contains("Priority:") || trimmed.contains("⭐")) {
+                        val starCount = trimmed.count { it == '★' }
+                        if (starCount in 1..5) {
+                            detectedImportance = starCount
+                        }
                     }
                 }
 
-                if (!detectedCourse.isNullOrBlank() && !detectedTopic.isNullOrBlank()) {
+                if (!detectedCourse.isNullOrBlank() || !detectedTopic.isNullOrBlank()) {
                     return ShareableNoteData(
                         courseName = detectedCourse ?: "Imported Course",
                         courseCode = detectedCode,
                         topicName = detectedTopic ?: "Class Notes",
-                        importance = 3
+                        caption = detectedCaption,
+                        importance = detectedImportance
                     )
                 }
             }

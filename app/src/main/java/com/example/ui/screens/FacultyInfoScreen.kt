@@ -93,6 +93,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.FacultyMember
 import com.example.ui.ClassNotesViewModel
+import com.example.ui.theme.*
 import com.example.util.AppThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -160,11 +161,10 @@ fun FacultyInfoScreen(
         }
     }
 
-    // Light mode: Clean, soft off-white background (#F5F7FA) so pure white cards float with a gentle, beautiful shadow
-    val screenBgColor = if (isDark) Color(0xFF0F172A) else Color(0xFFF5F7FA)
-    val topBarBgColor = if (isDark) Color(0xFF1E293B) else Color(0xFFF5F7FA)
-    val topBarTextColor = if (isDark) Color(0xFFF8FAFC) else Color(0xFF1F2937)
-    val subtitleTextColor = if (isDark) Color(0xFF94A3B8) else Color(0xFF6B7280)
+    val screenBgColor = MaterialTheme.colorScheme.background
+    val topBarBgColor = MaterialTheme.colorScheme.background
+    val topBarTextColor = MaterialTheme.colorScheme.onBackground
+    val subtitleTextColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Scaffold(
         containerColor = screenBgColor,
@@ -209,11 +209,11 @@ fun FacultyInfoScreen(
                     facultyToEdit = null
                     showAddEditDialog = true
                 },
-                containerColor = Color(0xFF2563EB),
-                contentColor = Color.White,
+                containerColor = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E),
+                contentColor = if (isDark) Color(0xFF042F2C) else Color.White,
                 shape = CircleShape,
                 modifier = Modifier
-                    .shadow(elevation = 6.dp, shape = CircleShape, spotColor = Color(0x402563EB))
+                    .shadow(elevation = 2.dp, shape = CircleShape)
                     .testTag("add_faculty_fab")
             ) {
                 Icon(
@@ -232,7 +232,7 @@ fun FacultyInfoScreen(
         ) {
             // Subtle separator line below top bar
             HorizontalDivider(
-                color = if (isDark) Color(0xFF334155) else Color(0xFFEEF2F6),
+                color = MaterialTheme.colorScheme.outlineVariant,
                 thickness = 1.dp
             )
 
@@ -247,25 +247,19 @@ fun FacultyInfoScreen(
                     onValueChange = { searchQuery = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(
-                            elevation = if (isDark) 0.dp else 3.dp,
-                            shape = RoundedCornerShape(14.dp),
-                            spotColor = Color(0x260F172A),
-                            ambientColor = Color(0x1A0F172A)
-                        )
                         .testTag("faculty_search_input"),
                     placeholder = {
                         Text(
                             text = "Search faculty by name, dept, or room...",
                             fontSize = 14.sp,
-                            color = if (isDark) Color(0xFF94A3B8) else Color(0xFF9CA3AF)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = Color(0xFF2563EB)
+                            tint = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
                         )
                     },
                     trailingIcon = {
@@ -274,7 +268,7 @@ fun FacultyInfoScreen(
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Clear search",
-                                    tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF6B7280)
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -282,10 +276,10 @@ fun FacultyInfoScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(14.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = if (isDark) Color(0xFF1E293B) else Color.White,
-                        unfocusedContainerColor = if (isDark) Color(0xFF1E293B) else Color.White,
-                        focusedBorderColor = Color(0xFF2563EB),
-                        unfocusedBorderColor = if (isDark) Color(0xFF334155) else Color(0xFFCBD5E1)
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E),
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                     )
                 )
             }
@@ -300,14 +294,27 @@ fun FacultyInfoScreen(
                 ) {
                     items(departments) { dept ->
                         val isSelected = selectedDepartmentFilter == dept
+                        val chipBgColor = if (isSelected) {
+                            if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        }
+                        val chipBorderColor = if (isSelected) {
+                            if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
+                        } else {
+                            MaterialTheme.colorScheme.outlineVariant
+                        }
+                        val chipTextColor = if (isSelected) {
+                            if (isDark) Color(0xFF042F2C) else Color.White
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+
                         Surface(
                             shape = RoundedCornerShape(20.dp),
-                            color = if (isSelected) Color(0xFF2563EB) else (if (isDark) Color(0xFF1E293B) else Color.White),
-                            border = BorderStroke(
-                                1.dp,
-                                if (isSelected) Color(0xFF2563EB) else (if (isDark) Color(0xFF334155) else Color(0xFFCBD5E1))
-                            ),
-                            shadowElevation = if (isSelected || isDark) 0.dp else 2.dp,
+                            color = chipBgColor,
+                            border = BorderStroke(1.dp, chipBorderColor),
+                            shadowElevation = 0.dp,
                             modifier = Modifier.clickable { selectedDepartmentFilter = dept }
                         ) {
                             Text(
@@ -315,7 +322,7 @@ fun FacultyInfoScreen(
                                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
                                 fontSize = 12.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isSelected) Color.White else (if (isDark) Color(0xFFE2E8F0) else Color(0xFF374151))
+                                color = chipTextColor
                             )
                         }
                     }
@@ -338,14 +345,14 @@ fun FacultyInfoScreen(
                         Surface(
                             modifier = Modifier.size(72.dp),
                             shape = CircleShape,
-                            color = if (isDark) Color(0xFF1E3A8A) else Color(0xFFDBEAFE)
+                            color = if (isDark) Color(0xFF102E28) else Color(0xFFCCFBF1)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.School,
                                     contentDescription = null,
                                     modifier = Modifier.size(36.dp),
-                                    tint = Color(0xFF2563EB)
+                                    tint = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
                                 )
                             }
                         }
@@ -353,12 +360,12 @@ fun FacultyInfoScreen(
                             text = if (searchQuery.isNotBlank()) "No faculty member found" else "No faculty members added yet",
                             fontSize = 17.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (isDark) Color(0xFFF1F5F9) else Color(0xFF1F2937)
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             text = "Save your professors' and instructors' contacts, office rooms, and emails for easy access.",
                             fontSize = 13.sp,
-                            color = if (isDark) Color(0xFF94A3B8) else Color(0xFF6B7280),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                         Button(
@@ -367,7 +374,8 @@ fun FacultyInfoScreen(
                                 showAddEditDialog = true
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF2563EB)
+                                containerColor = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E),
+                                contentColor = if (isDark) Color(0xFF042F2C) else Color.White
                             ),
                             shape = RoundedCornerShape(12.dp)
                         ) {
@@ -498,263 +506,227 @@ fun FacultyCardItem(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val cardContainerColor = if (isDark) Color(0xFF1E293B) else Color.White
-    val cardBorderColor = if (isDark) Color(0xFF334155) else Color(0xFFEEF2F6)
+    val cardContainerColor = MaterialTheme.colorScheme.surface
+    val cardBorderColor = MaterialTheme.colorScheme.outlineVariant
 
-    // Soft, balanced, and aesthetically pleasing drop shadow
-    val shadowSpreadColor = if (isDark) Color(0x33000000) else Color(0x0A0F172A)
-    val shadowDirectColor = if (isDark) Color(0x55000000) else Color(0x120F172A)
-
-    Box(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            // Natural, soft dual-layer canvas shadow that looks clean and premium
-            .drawBehind {
-                val radius = 18.dp.toPx()
-                // Layer 1: Gentle ambient halo
-                drawRoundRect(
-                    color = shadowSpreadColor,
-                    topLeft = Offset(0f, 1.5.dp.toPx()),
-                    size = Size(size.width, size.height + 1.5.dp.toPx()),
-                    cornerRadius = CornerRadius(radius, radius)
-                )
-                // Layer 2: Subtle downward drop shadow
-                drawRoundRect(
-                    color = shadowDirectColor,
-                    topLeft = Offset(0f, 3.5.dp.toPx()),
-                    size = Size(size.width, size.height),
-                    cornerRadius = CornerRadius(radius, radius)
-                )
-            }
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .testTag("faculty_card_${faculty.id}"),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = cardContainerColor
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, cardBorderColor)
     ) {
-        Card(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(
-                    elevation = if (isDark) 4.dp else 2.dp,
-                    shape = RoundedCornerShape(18.dp),
-                    spotColor = if (isDark) Color.Black else Color(0x1A0F172A),
-                    ambientColor = if (isDark) Color.Black else Color(0x0D0F172A)
-                )
-                .clip(RoundedCornerShape(18.dp))
-                .clickable(onClick = onClick)
-                .testTag("faculty_card_${faculty.id}"),
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = cardContainerColor
-            ),
-            border = BorderStroke(1.dp, cardBorderColor)
+                .animateContentSize(animationSpec = tween(220))
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .animateContentSize(animationSpec = tween(220))
-                    .padding(16.dp)
+            // Header Row: Avatar, Name & Department, and Expand Arrow
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Header Row: Avatar, Name & Department, and Expand Arrow
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                // Initial Letter Icon Avatar in soft subtle mint-teal
+                val initialText = faculty.initials.ifBlank {
+                    faculty.name.split(" ")
+                        .filter { it.isNotBlank() }
+                        .take(2)
+                        .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                        .joinToString("")
+                        .ifBlank { "T" }
+                }
+
+                val avatarBg = if (isDark) Color(0xFF102E28) else Color(0xFFCCFBF1)
+                val avatarTextColor = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
+
+                Box(
+                    modifier = Modifier
+                        .size(46.dp)
+                        .clip(CircleShape)
+                        .background(avatarBg),
+                    contentAlignment = Alignment.Center
                 ) {
-                    // Initial Letter Icon Avatar
-                    val initialText = faculty.initials.ifBlank {
-                        faculty.name.split(" ")
-                            .filter { it.isNotBlank() }
-                            .take(2)
-                            .mapNotNull { it.firstOrNull()?.uppercaseChar() }
-                            .joinToString("")
-                            .ifBlank { "T" }
-                    }
+                    Text(
+                        text = initialText,
+                        color = avatarTextColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
+                }
 
-                    Box(
-                        modifier = Modifier
-                            .size(46.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.linearGradient(
-                                    colors = listOf(
-                                        Color(0xFF2563EB),
-                                        Color(0xFF60A5FA)
-                                    )
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
+                Spacer(modifier = Modifier.width(14.dp))
+
+                // Name on top, Department directly underneath
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = faculty.name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Text(
+                        text = faculty.department,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    if (faculty.designation.isNotBlank()) {
                         Text(
-                            text = initialText,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(14.dp))
-
-                    // Name on top, Department directly underneath
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = faculty.name,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = if (isDark) Color(0xFFF1F5F9) else Color(0xFF111827),
+                            text = faculty.designation,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
-                        )
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        Text(
-                            text = faculty.department,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                        if (faculty.designation.isNotBlank()) {
-                            Text(
-                                text = faculty.designation,
-                                fontSize = 12.sp,
-                                color = if (isDark) Color(0xFF94A3B8) else Color(0xFF6B7280),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-
-                    // Expand / Collapse Chevron indicator
-                    IconButton(
-                        onClick = onClick,
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                            contentDescription = if (isExpanded) "Collapse" else "Expand details",
-                            tint = if (isDark) Color(0xFF94A3B8) else Color(0xFF6B7280)
                         )
                     }
                 }
 
-                // Expanded Detailed View
-                AnimatedVisibility(
-                    visible = isExpanded,
-                    enter = fadeIn(animationSpec = tween(180)),
-                    exit = fadeOut(animationSpec = tween(140))
+                // Expand / Collapse Chevron indicator
+                IconButton(
+                    onClick = onClick,
+                    modifier = Modifier.size(36.dp)
                 ) {
-                    Column(
+                    Icon(
+                        imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = if (isExpanded) "Collapse" else "Expand details",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            // Expanded Detailed View
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = fadeIn(animationSpec = tween(180)),
+                exit = fadeOut(animationSpec = tween(140))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        thickness = 1.dp
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Room Number Item
+                    if (faculty.roomNumber.isNotBlank()) {
+                        DetailInfoRow(
+                            icon = Icons.Default.MeetingRoom,
+                            label = "Room Number",
+                            value = faculty.roomNumber,
+                            isDark = isDark,
+                            onCopy = { onCopyText(faculty.roomNumber, "Room number") }
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+
+                    // Email Address Item with Copy & Send Intent
+                    if (faculty.email.isNotBlank()) {
+                        DetailInfoRow(
+                            icon = Icons.Default.Email,
+                            label = "Email Address",
+                            value = faculty.email,
+                            isDark = isDark,
+                            onCopy = { onCopyText(faculty.email, "Email") },
+                            actionIcon = Icons.Default.Email,
+                            actionLabel = "Email",
+                            onActionClick = { onSendEmail(faculty.email) }
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+
+                    // Phone Number Item with Copy & Call Intent
+                    if (faculty.phone.isNotBlank()) {
+                        DetailInfoRow(
+                            icon = Icons.Default.Call,
+                            label = "Phone Number",
+                            value = faculty.phone,
+                            isDark = isDark,
+                            onCopy = { onCopyText(faculty.phone, "Phone number") },
+                            actionIcon = Icons.Default.Call,
+                            actionLabel = "Call",
+                            onActionClick = { onDialPhone(faculty.phone) }
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+
+                    // Office Hours / Counseling Hours
+                    if (faculty.officeHours.isNotBlank()) {
+                        DetailInfoRow(
+                            icon = Icons.Default.Schedule,
+                            label = "Office Hours",
+                            value = faculty.officeHours,
+                            isDark = isDark,
+                            onCopy = { onCopyText(faculty.officeHours, "Office hours") }
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+
+                    // Edit & Delete Action Buttons
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 16.dp)
+                            .padding(top = 6.dp),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        HorizontalDivider(
-                            color = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0),
-                            thickness = 1.dp
-                        )
-
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        // Room Number Item
-                        if (faculty.roomNumber.isNotBlank()) {
-                            DetailInfoRow(
-                                icon = Icons.Default.MeetingRoom,
-                                label = "Room Number",
-                                value = faculty.roomNumber,
-                                isDark = isDark,
-                                onCopy = { onCopyText(faculty.roomNumber, "Room number") }
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-                        }
-
-                        // Email Address Item with Copy & Send Intent
-                        if (faculty.email.isNotBlank()) {
-                            DetailInfoRow(
-                                icon = Icons.Default.Email,
-                                label = "Email Address",
-                                value = faculty.email,
-                                isDark = isDark,
-                                onCopy = { onCopyText(faculty.email, "Email") },
-                                actionIcon = Icons.Default.Email,
-                                actionLabel = "Email",
-                                onActionClick = { onSendEmail(faculty.email) }
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-                        }
-
-                        // Phone Number Item with Copy & Call Intent
-                        if (faculty.phone.isNotBlank()) {
-                            DetailInfoRow(
-                                icon = Icons.Default.Call,
-                                label = "Phone Number",
-                                value = faculty.phone,
-                                isDark = isDark,
-                                onCopy = { onCopyText(faculty.phone, "Phone number") },
-                                actionIcon = Icons.Default.Call,
-                                actionLabel = "Call",
-                                onActionClick = { onDialPhone(faculty.phone) }
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-                        }
-
-                        // Office Hours / Counseling Hours
-                        if (faculty.officeHours.isNotBlank()) {
-                            DetailInfoRow(
-                                icon = Icons.Default.Schedule,
-                                label = "Office Hours",
-                                value = faculty.officeHours,
-                                isDark = isDark,
-                                onCopy = { onCopyText(faculty.officeHours, "Office hours") }
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-                        }
-
-                        // Edit & Delete Action Buttons
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 6.dp),
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically
+                        OutlinedButton(
+                            onClick = onEdit,
+                            shape = RoundedCornerShape(10.dp),
+                            border = BorderStroke(
+                                1.dp,
+                                MaterialTheme.colorScheme.outlineVariant
+                            ),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            modifier = Modifier.padding(end = 8.dp)
                         ) {
-                            OutlinedButton(
-                                onClick = onEdit,
-                                shape = RoundedCornerShape(10.dp),
-                                border = BorderStroke(
-                                    1.dp,
-                                    if (isDark) Color(0xFF475569) else Color(0xFFCBD5E1)
-                                ),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = if (isDark) Color(0xFFE2E8F0) else Color(0xFF374151)
-                                ),
-                                modifier = Modifier.padding(end = 8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(text = "Edit", fontSize = 13.sp)
-                            }
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(text = "Edit", fontSize = 13.sp)
+                        }
 
-                            OutlinedButton(
-                                onClick = onDelete,
-                                shape = RoundedCornerShape(10.dp),
-                                border = BorderStroke(1.dp, Color(0xFFEF4444).copy(alpha = 0.5f)),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = Color(0xFFEF4444)
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.DeleteOutline,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(text = "Delete", fontSize = 13.sp)
-                            }
+                        OutlinedButton(
+                            onClick = onDelete,
+                            shape = RoundedCornerShape(10.dp),
+                            border = BorderStroke(1.dp, Color(0xFFEF4444).copy(alpha = 0.35f)),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = Color(0xFFEF4444)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DeleteOutline,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(text = "Delete", fontSize = 13.sp)
                         }
                     }
                 }
@@ -779,10 +751,10 @@ fun DetailInfoRow(
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = if (isDark) Color(0xFF0F172A) else Color(0xFFF8FAFC),
+        color = MaterialTheme.colorScheme.surfaceVariant,
         border = BorderStroke(
             1.dp,
-            if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+            MaterialTheme.colorScheme.outlineVariant
         ),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -796,7 +768,7 @@ fun DetailInfoRow(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB)
+                tint = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
             )
 
             Spacer(modifier = Modifier.width(10.dp))
@@ -807,13 +779,13 @@ fun DetailInfoRow(
                 Text(
                     text = label,
                     fontSize = 11.sp,
-                    color = if (isDark) Color(0xFF94A3B8) else Color(0xFF6B7280)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = value,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (isDark) Color(0xFFF1F5F9) else Color(0xFF111827)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -821,7 +793,7 @@ fun DetailInfoRow(
             if (actionIcon != null && onActionClick != null) {
                 Surface(
                     shape = CircleShape,
-                    color = Color(0xFF2563EB).copy(alpha = 0.12f),
+                    color = if (isDark) Color(0xFF102E28) else Color(0xFFCCFBF1),
                     modifier = Modifier
                         .size(34.dp)
                         .clip(CircleShape)
@@ -831,7 +803,7 @@ fun DetailInfoRow(
                         Icon(
                             imageVector = actionIcon,
                             contentDescription = actionLabel,
-                            tint = Color(0xFF2563EB),
+                            tint = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E),
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -842,7 +814,8 @@ fun DetailInfoRow(
             // Copy button
             Surface(
                 shape = CircleShape,
-                color = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0),
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 modifier = Modifier
                     .size(34.dp)
                     .clip(CircleShape)
@@ -852,7 +825,7 @@ fun DetailInfoRow(
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
                         contentDescription = "Copy $label",
-                        tint = if (isDark) Color(0xFFE2E8F0) else Color(0xFF374151),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -997,7 +970,10 @@ fun AddEditFacultyDialog(
                         onSave(name, designation, department, email, phone, roomNumber, initials, officeHours)
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 Text("Save")
             }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.luminance
 import com.example.R
 
 @Composable
@@ -24,20 +26,18 @@ fun ClassMateAppLogo(
     modifier: Modifier = Modifier
 ) {
     val cornerRadius = size * 0.28f
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val bgColor = if (isDark) Color(0xFF102E28) else Color.White
+    val borderColor = if (isDark) Color(0xFF1B4D43) else MaterialTheme.colorScheme.outlineVariant
+
     Box(
         modifier = modifier
             .size(size)
-            .shadow(elevation = 2.dp, shape = RoundedCornerShape(cornerRadius))
             .clip(RoundedCornerShape(cornerRadius))
-            .background(Color.White)
+            .background(bgColor)
             .border(
                 width = 1.dp,
-                brush = Brush.linearGradient(
-                    listOf(
-                        Color(0xFF00E5FF).copy(alpha = 0.6f),
-                        Color(0xFF0080FF).copy(alpha = 0.6f)
-                    )
-                ),
+                color = borderColor,
                 shape = RoundedCornerShape(cornerRadius)
             ),
         contentAlignment = Alignment.Center
