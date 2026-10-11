@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -79,6 +80,8 @@ fun AppBottomNavigationBar(
         else -> null
     }
 
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         tonalElevation = 0.dp,
@@ -86,7 +89,7 @@ fun AppBottomNavigationBar(
         color = MaterialTheme.colorScheme.background,
         border = BorderStroke(
             width = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant
+            color = if (isDark) MaterialTheme.colorScheme.outlineVariant else Color(0xFFE2E8F0)
         )
     ) {
         NavigationBar(
@@ -118,9 +121,9 @@ fun AppBottomNavigationBar(
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFF2DD4BF),
-                        selectedTextColor = Color(0xFF2DD4BF),
-                        indicatorColor = Color(0xFF122E2B),
+                        selectedIconColor = if (isDark) Color(0xFF2DD4BF) else Color.White,
+                        selectedTextColor = if (isDark) Color(0xFF2DD4BF) else Color(0xFF064E3B),
+                        indicatorColor = if (isDark) Color(0xFF122E2B) else Color(0xFF064E3B),
                         unselectedIconColor = Color(0xFF64748B),
                         unselectedTextColor = Color(0xFF64748B)
                     ),

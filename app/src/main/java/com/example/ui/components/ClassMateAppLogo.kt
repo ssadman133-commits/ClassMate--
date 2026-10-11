@@ -27,8 +27,8 @@ fun ClassMateAppLogo(
 ) {
     val cornerRadius = size * 0.28f
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val bgColor = if (isDark) Color(0xFF102E28) else Color.White
-    val borderColor = if (isDark) Color(0xFF1B4D43) else MaterialTheme.colorScheme.outlineVariant
+    val bgColor = if (isDark) Color(0xFF102E28) else Color(0xFFCCFBF1)
+    val borderColor = if (isDark) Color(0xFF1B4D43) else Color(0xFF99F6E4)
 
     Box(
         modifier = modifier
