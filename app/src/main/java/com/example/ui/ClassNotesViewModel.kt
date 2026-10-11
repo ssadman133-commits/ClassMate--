@@ -87,6 +87,7 @@ class ClassNotesViewModel(application: Application) : AndroidViewModel(applicati
     // Persistent Settings
     val themeMode: StateFlow<AppThemeMode> = settingsManager.themeMode
     val gradeScale: StateFlow<GradeScale> = settingsManager.gradeScale
+    val isGradeScaleConfigured: StateFlow<Boolean> = settingsManager.isGradeScaleConfigured
     val assignmentRemindersEnabled: StateFlow<Boolean> = settingsManager.assignmentRemindersEnabled
     val examRemindersEnabled: StateFlow<Boolean> = settingsManager.examRemindersEnabled
 
@@ -656,6 +657,12 @@ class ClassNotesViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             settingsManager.saveGradeScale(scale)
             _userMessage.value = "Grade scale updated"
+        }
+    }
+
+    fun dismissInitialGradeScaleSetup() {
+        viewModelScope.launch {
+            settingsManager.setGradeScaleConfigured(true)
         }
     }
 

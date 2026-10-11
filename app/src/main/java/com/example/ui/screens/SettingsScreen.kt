@@ -12,8 +12,10 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -34,6 +36,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Feedback
@@ -76,6 +79,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.util.AppThemeMode
 import com.example.util.GradeScale
@@ -146,7 +150,7 @@ fun SettingsScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = if (isDark) Color(0xFF0B0F19) else Color(0xFFE2E8F0),
+        containerColor = MaterialTheme.colorScheme.background,
         bottomBar = bottomBar,
         topBar = {
             TopAppBar(
@@ -155,7 +159,7 @@ fun SettingsScreen(
                         text = "Settings",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = if (isDark) Color.White else Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 },
                 navigationIcon = {
@@ -166,12 +170,12 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = if (isDark) Color.White else Color(0xFF0F172A)
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isDark) Color(0xFF0B0F19) else Color(0xFFE2E8F0)
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         }
@@ -180,119 +184,53 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 6.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 28.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Section 1: Appearance
+            // Group 1: Appearance & Academic Standards
             item {
-                SettingsSectionHeader(title = "Appearance")
-            }
-            item {
-                SettingsRowItemCard(
-                    icon = Icons.Default.ColorLens,
-                    title = "App Theme",
-                    subtitle = when (currentThemeMode) {
-                        AppThemeMode.SYSTEM -> "System Default"
-                        AppThemeMode.LIGHT -> "Light Mode"
-                        AppThemeMode.DARK -> "Dark Mode"
-                    },
-                    testTag = "settings_theme_row",
-                    onClick = { showThemeDialog = true }
-                )
+                SettingsSectionHeader(title = "Appearance & Grading")
+                Spacer(modifier = Modifier.height(6.dp))
+                SettingsGroupCard {
+                    SettingsRowItem(
+                        icon = Icons.Default.ColorLens,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        iconBg = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                        title = "App Theme",
+                        subtitle = when (currentThemeMode) {
+                            AppThemeMode.SYSTEM -> "System Default"
+                            AppThemeMode.LIGHT -> "Light Mode"
+                            AppThemeMode.DARK -> "Dark Mode"
+                        },
+                        testTag = "settings_theme_row",
+                        onClick = { showThemeDialog = true }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 68.dp, end = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+                    SettingsRowItem(
+                        icon = Icons.Default.Tune,
+                        iconTint = MaterialTheme.colorScheme.secondary,
+                        iconBg = MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f),
+                        title = "Grade Scale Points",
+                        subtitle = "A+ (4.00), A (3.75), B (3.00)... Tap to customize",
+                        testTag = "settings_grade_scale_row",
+                        onClick = { showGradeScaleDialog = true }
+                    )
+                }
             }
 
-            // Section 2: Grade Scale (CGPA)
-            item {
-                SettingsSectionHeader(title = "Academic Standards")
-            }
-            item {
-                SettingsRowItemCard(
-                    icon = Icons.Default.Tune,
-                    title = "Grade Scale Points",
-                    subtitle = "A+ (4.00), A (3.75), B (3.00)... Tap to customize",
-                    testTag = "settings_grade_scale_row",
-                    onClick = { showGradeScaleDialog = true }
-                )
-            }
-
-            // Section 3: Notification Settings - Each setting as its own separate floating card
+            // Group 2: Notifications & Reminders
             item {
                 SettingsSectionHeader(title = "Notifications & Reminders")
-            }
-
-            // 3.1 Assignment Reminders
-            item {
-                SettingsCard {
+                Spacer(modifier = Modifier.height(6.dp))
+                SettingsGroupCard {
+                    // Assignment Reminders
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 13.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Assignment Reminders",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (isDark) Color.White else Color(0xFF0F172A)
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = "Receive local alerts before due dates",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Switch(
-                            checked = assignmentRemindersEnabled,
-                            onCheckedChange = onToggleAssignmentReminders,
-                            modifier = Modifier.testTag("switch_assignment_reminders")
-                        )
-                    }
-                }
-            }
-
-            // 3.2 Exam Reminders
-            item {
-                SettingsCard {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 13.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Exam Reminders",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (isDark) Color.White else Color(0xFF0F172A)
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = "Receive local alerts before scheduled exams",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Switch(
-                            checked = examRemindersEnabled,
-                            onCheckedChange = onToggleExamReminders,
-                            modifier = Modifier.testTag("switch_exam_reminders")
-                        )
-                    }
-                }
-            }
-
-            // 3.3 System Notification Permission Status
-            item {
-                SettingsCard {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 13.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -300,19 +238,108 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.weight(1f)
                         ) {
-                            Icon(
-                                imageVector = if (isNotificationPermissionGranted) Icons.Default.CheckCircle else Icons.Default.Warning,
-                                contentDescription = null,
-                                tint = if (isNotificationPermissionGranted) Color(0xFF10B981) else MaterialTheme.colorScheme.error,
-                                modifier = Modifier.size(24.dp)
+                            SettingsIconBadge(
+                                icon = Icons.Default.Notifications,
+                                tint = Color(0xFF3B82F6),
+                                background = Color(0xFF3B82F6).copy(alpha = 0.12f)
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Column {
+                                Text(
+                                    text = "Assignment Reminders",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Receive local alerts before due dates",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Switch(
+                            checked = assignmentRemindersEnabled,
+                            onCheckedChange = onToggleAssignmentReminders,
+                            modifier = Modifier.testTag("switch_assignment_reminders")
+                        )
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 68.dp, end = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+
+                    // Exam Reminders
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            SettingsIconBadge(
+                                icon = Icons.Default.NotificationsActive,
+                                tint = Color(0xFF8B5CF6),
+                                background = Color(0xFF8B5CF6).copy(alpha = 0.12f)
+                            )
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Column {
+                                Text(
+                                    text = "Exam Reminders",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Receive local alerts before scheduled exams",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Switch(
+                            checked = examRemindersEnabled,
+                            onCheckedChange = onToggleExamReminders,
+                            modifier = Modifier.testTag("switch_exam_reminders")
+                        )
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 68.dp, end = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+
+                    // Permission Status
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            SettingsIconBadge(
+                                icon = if (isNotificationPermissionGranted) Icons.Default.CheckCircle else Icons.Default.Warning,
+                                tint = if (isNotificationPermissionGranted) Color(0xFF10B981) else MaterialTheme.colorScheme.error,
+                                background = if (isNotificationPermissionGranted) Color(0xFF10B981).copy(alpha = 0.12f) else MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
+                            )
+                            Spacer(modifier = Modifier.width(14.dp))
                             Column {
                                 Text(
                                     text = if (isNotificationPermissionGranted) "Notification Permission: Active" else "Notification Permission: Disabled",
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (isNotificationPermissionGranted) (if (isDark) Color.White else Color(0xFF0F172A)) else MaterialTheme.colorScheme.error
+                                    color = if (isNotificationPermissionGranted) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
@@ -341,16 +368,17 @@ fun SettingsScreen(
                             }
                         }
                     }
-                }
-            }
 
-            // 3.4 Battery Optimization & Background Execution
-            item {
-                SettingsCard {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 68.dp, end = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+
+                    // Battery Optimization
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 13.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -358,19 +386,18 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.weight(1f)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.BatteryChargingFull,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
+                            SettingsIconBadge(
+                                icon = Icons.Default.BatteryChargingFull,
+                                tint = Color(0xFFF59E0B),
+                                background = Color(0xFFF59E0B).copy(alpha = 0.12f)
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(14.dp))
                             Column {
                                 Text(
                                     text = "Background App Execution",
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (isDark) Color.White else Color(0xFF0F172A)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
@@ -400,16 +427,17 @@ fun SettingsScreen(
                             Text("Settings")
                         }
                     }
-                }
-            }
 
-            // 3.5 Test Background Notification in 5 Seconds
-            item {
-                SettingsCard {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 68.dp, end = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+
+                    // Test Alert (5s)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 13.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -417,19 +445,18 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.weight(1f)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Alarm,
-                                contentDescription = null,
+                            SettingsIconBadge(
+                                icon = Icons.Default.Alarm,
                                 tint = MaterialTheme.colorScheme.tertiary,
-                                modifier = Modifier.size(24.dp)
+                                background = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f)
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(14.dp))
                             Column {
                                 Text(
                                     text = "Test Background Alert (5s)",
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (isDark) Color.White else Color(0xFF0F172A)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
@@ -460,50 +487,64 @@ fun SettingsScreen(
                 }
             }
 
-            // Section 4: Storage Information
+            // Group 3: Data & Storage
             item {
                 SettingsSectionHeader(title = "Data & Storage")
-            }
-            item {
-                SettingsRowItemCard(
-                    icon = Icons.Default.Folder,
-                    title = "Storage Usage",
-                    subtitle = String.format(Locale.US, "%.2f MB used by %d note photos", storageInfo.first, storageInfo.second),
-                    testTag = "settings_storage_row",
-                    onClick = { showStorageDialog = true }
-                )
+                Spacer(modifier = Modifier.height(6.dp))
+                SettingsGroupCard {
+                    SettingsRowItem(
+                        icon = Icons.Default.Folder,
+                        iconTint = Color(0xFF0EA5E9),
+                        iconBg = Color(0xFF0EA5E9).copy(alpha = 0.12f),
+                        title = "Storage Usage",
+                        subtitle = String.format(Locale.US, "%.2f MB used by %d note photos", storageInfo.first, storageInfo.second),
+                        testTag = "settings_storage_row",
+                        onClick = { showStorageDialog = true }
+                    )
+                }
             }
 
-            // Section 5: Information & About - Each as its own separate floating card
+            // Group 4: Information & Support
             item {
                 SettingsSectionHeader(title = "Information & Support")
-            }
-            item {
-                SettingsRowItemCard(
-                    icon = Icons.Default.Security,
-                    title = "Privacy Policy",
-                    subtitle = "100% offline data protection guarantee",
-                    testTag = "settings_privacy_row",
-                    onClick = { showPrivacyDialog = true }
-                )
-            }
-            item {
-                SettingsRowItemCard(
-                    icon = Icons.Default.Info,
-                    title = "About Class Notes",
-                    subtitle = "Version 1.0 • Student Productivity Suite",
-                    testTag = "settings_about_row",
-                    onClick = { showAboutDialog = true }
-                )
-            }
-            item {
-                SettingsRowItemCard(
-                    icon = Icons.Default.Feedback,
-                    title = "Feedback & Contact",
-                    subtitle = "Suggestions and student queries",
-                    testTag = "settings_feedback_row",
-                    onClick = { showFeedbackDialog = true }
-                )
+                Spacer(modifier = Modifier.height(6.dp))
+                SettingsGroupCard {
+                    SettingsRowItem(
+                        icon = Icons.Default.Security,
+                        iconTint = Color(0xFF10B981),
+                        iconBg = Color(0xFF10B981).copy(alpha = 0.12f),
+                        title = "Privacy Policy",
+                        subtitle = "100% offline data protection guarantee",
+                        testTag = "settings_privacy_row",
+                        onClick = { showPrivacyDialog = true }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 68.dp, end = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+                    SettingsRowItem(
+                        icon = Icons.Default.Info,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        iconBg = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                        title = "About Class Notes",
+                        subtitle = "Version 1.0 • Student Productivity Suite",
+                        testTag = "settings_about_row",
+                        onClick = { showAboutDialog = true }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 68.dp, end = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    )
+                    SettingsRowItem(
+                        icon = Icons.Default.Feedback,
+                        iconTint = Color(0xFFEC4899),
+                        iconBg = Color(0xFFEC4899).copy(alpha = 0.12f),
+                        title = "Feedback & Contact",
+                        subtitle = "Suggestions and student queries",
+                        testTag = "settings_feedback_row",
+                        onClick = { showFeedbackDialog = true }
+                    )
+                }
             }
         }
     }
@@ -734,10 +775,107 @@ fun SettingsSectionHeader(
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
         fontWeight = FontWeight.Bold,
-        modifier = modifier.padding(start = 4.dp, top = 6.dp, bottom = 2.dp)
+        modifier = modifier.padding(start = 6.dp, top = 4.dp, bottom = 2.dp)
     )
 }
 
+@Composable
+fun SettingsIconBadge(
+    icon: ImageVector,
+    tint: Color,
+    background: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(38.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(background),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+@Composable
+fun SettingsGroupCard(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            content()
+        }
+    }
+}
+
+@Composable
+fun SettingsRowItem(
+    icon: ImageVector,
+    iconTint: Color,
+    iconBg: Color,
+    title: String,
+    subtitle: String,
+    testTag: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .testTag(testTag)
+            .padding(horizontal = 16.dp, vertical = 13.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        SettingsIconBadge(
+            icon = icon,
+            tint = iconTint,
+            background = iconBg
+        )
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+// Backwards compatibility aliases
 @Composable
 fun SettingsCard(
     modifier: Modifier = Modifier,
@@ -745,32 +883,15 @@ fun SettingsCard(
     testTag: String? = null,
     content: @Composable () -> Unit
 ) {
-    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val containerColor = if (isDark) Color(0xFF131B2E) else Color.White
-    val borderColor = if (isDark) Color(0xFF1E293B) else Color(0xFFCBD5E1)
-
-    val baseModifier = modifier
-        .fillMaxWidth()
-        .shadow(
-            elevation = if (isDark) 2.dp else 4.dp,
-            shape = RoundedCornerShape(16.dp),
-            spotColor = Color(0x350F172A),
-            ambientColor = Color(0x180F172A)
-        )
-        .clip(RoundedCornerShape(16.dp))
-        .then(
-            if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
-        )
-        .then(
-            if (testTag != null) Modifier.testTag(testTag) else Modifier
-        )
-
     Card(
-        modifier = baseModifier,
+        modifier = modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .then(if (testTag != null) Modifier.testTag(testTag) else Modifier),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        border = BorderStroke(1.dp, borderColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 2.dp else 4.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         content()
     }
@@ -785,39 +906,16 @@ fun SettingsRowItemCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    SettingsCard(
-        modifier = modifier,
+    SettingsRowItem(
+        icon = icon,
+        iconTint = MaterialTheme.colorScheme.primary,
+        iconBg = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+        title = title,
+        subtitle = subtitle,
+        testTag = testTag,
         onClick = onClick,
-        testTag = testTag
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -836,7 +934,6 @@ fun GradeScaleEditorDialog(
     var c by remember { mutableStateOf(current.c.toString()) }
     var d by remember { mutableStateOf(current.d.toString()) }
     var f by remember { mutableStateOf(current.f.toString()) }
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Customize Grade Scale", fontWeight = FontWeight.Bold) },
@@ -847,7 +944,7 @@ fun GradeScaleEditorDialog(
             ) {
                 item {
                     Text(
-                        text = "Edit point values used for CGPA calculations:",
+                        text = "Edit point values used for CGPA calculations according to your university:",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

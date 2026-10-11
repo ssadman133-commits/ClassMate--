@@ -209,8 +209,8 @@ fun FacultyInfoScreen(
                     facultyToEdit = null
                     showAddEditDialog = true
                 },
-                containerColor = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E),
-                contentColor = if (isDark) Color(0xFF042F2C) else Color.White,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape,
                 modifier = Modifier
                     .shadow(elevation = 2.dp, shape = CircleShape)
@@ -259,7 +259,7 @@ fun FacultyInfoScreen(
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     },
                     trailingIcon = {
@@ -278,7 +278,7 @@ fun FacultyInfoScreen(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        focusedBorderColor = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E),
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                     )
                 )
@@ -295,17 +295,17 @@ fun FacultyInfoScreen(
                     items(departments) { dept ->
                         val isSelected = selectedDepartmentFilter == dept
                         val chipBgColor = if (isSelected) {
-                            if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
+                            MaterialTheme.colorScheme.primary
                         } else {
                             MaterialTheme.colorScheme.surface
                         }
                         val chipBorderColor = if (isSelected) {
-                            if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
+                            MaterialTheme.colorScheme.primary
                         } else {
                             MaterialTheme.colorScheme.outlineVariant
                         }
                         val chipTextColor = if (isSelected) {
-                            if (isDark) Color(0xFF042F2C) else Color.White
+                            MaterialTheme.colorScheme.onPrimary
                         } else {
                             MaterialTheme.colorScheme.onSurfaceVariant
                         }
@@ -345,14 +345,14 @@ fun FacultyInfoScreen(
                         Surface(
                             modifier = Modifier.size(72.dp),
                             shape = CircleShape,
-                            color = if (isDark) Color(0xFF102E28) else Color(0xFFCCFBF1)
+                            color = MaterialTheme.colorScheme.primaryContainer
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.School,
                                     contentDescription = null,
                                     modifier = Modifier.size(36.dp),
-                                    tint = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -374,8 +374,8 @@ fun FacultyInfoScreen(
                                 showAddEditDialog = true
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E),
-                                contentColor = if (isDark) Color(0xFF042F2C) else Color.White
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
                             ),
                             shape = RoundedCornerShape(12.dp)
                         ) {
@@ -543,8 +543,8 @@ fun FacultyCardItem(
                         .ifBlank { "T" }
                 }
 
-                val avatarBg = if (isDark) Color(0xFF102E28) else Color(0xFFCCFBF1)
-                val avatarTextColor = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
+                val avatarBg = MaterialTheme.colorScheme.primaryContainer
+                val avatarTextColor = MaterialTheme.colorScheme.primary
 
                 Box(
                     modifier = Modifier
@@ -582,7 +582,7 @@ fun FacultyCardItem(
                         text = faculty.department,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E),
+                        color = MaterialTheme.colorScheme.primary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -768,7 +768,7 @@ fun DetailInfoRow(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
-                tint = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E)
+                tint = MaterialTheme.colorScheme.primary
             )
 
             Spacer(modifier = Modifier.width(10.dp))
@@ -793,7 +793,7 @@ fun DetailInfoRow(
             if (actionIcon != null && onActionClick != null) {
                 Surface(
                     shape = CircleShape,
-                    color = if (isDark) Color(0xFF102E28) else Color(0xFFCCFBF1),
+                    color = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier
                         .size(34.dp)
                         .clip(CircleShape)
@@ -803,7 +803,7 @@ fun DetailInfoRow(
                         Icon(
                             imageVector = actionIcon,
                             contentDescription = actionLabel,
-                            tint = if (isDark) Color(0xFF2DD4BF) else Color(0xFF0F766E),
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(16.dp)
                         )
                     }

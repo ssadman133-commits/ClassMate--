@@ -39,6 +39,10 @@ data class GradeScale(
             else -> 0.0
         }
     }
+
+    companion object {
+        val DEFAULT = GradeScale()
+    }
 }
 
 class SettingsManager(context: Context) {
@@ -61,6 +65,16 @@ class SettingsManager(context: Context) {
         prefs.getBoolean(KEY_EXAM_REMINDERS, true)
     )
     val examRemindersEnabled: StateFlow<Boolean> = _examRemindersEnabled.asStateFlow()
+
+    private val _isGradeScaleConfigured = MutableStateFlow(
+        prefs.getBoolean(KEY_GRADE_SCALE_CONFIGURED, false)
+    )
+    val isGradeScaleConfigured: StateFlow<Boolean> = _isGradeScaleConfigured.asStateFlow()
+
+    fun setGradeScaleConfigured(configured: Boolean = true) {
+        prefs.edit().putBoolean(KEY_GRADE_SCALE_CONFIGURED, configured).apply()
+        _isGradeScaleConfigured.value = configured
+    }
 
     fun setThemeMode(mode: AppThemeMode) {
         prefs.edit().putString(KEY_THEME_MODE, mode.name).apply()
@@ -88,7 +102,9 @@ class SettingsManager(context: Context) {
             .putFloat(KEY_GRADE_C, scale.c.toFloat())
             .putFloat(KEY_GRADE_D, scale.d.toFloat())
             .putFloat(KEY_GRADE_F, scale.f.toFloat())
+            .putBoolean(KEY_GRADE_SCALE_CONFIGURED, true)
             .apply()
+        _isGradeScaleConfigured.value = true
         _gradeScale.value = scale
     }
 
@@ -119,6 +135,7 @@ class SettingsManager(context: Context) {
 
     companion object {
         private const val KEY_THEME_MODE = "app_theme_mode"
+        private const val KEY_GRADE_SCALE_CONFIGURED = "grade_scale_configured"
         private const val KEY_ASSIGNMENT_REMINDERS = "assignment_reminders_enabled"
         private const val KEY_EXAM_REMINDERS = "exam_reminders_enabled"
 

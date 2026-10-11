@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
@@ -88,16 +89,41 @@ data class CourseEntry(
 @Composable
 fun CgpaCalculatorScreen(
     gradeScale: GradeScale,
+    isGradeScaleConfigured: Boolean = true,
+    onSaveGradeScale: (GradeScale) -> Unit = {},
+    onDismissGradeScaleSetup: () -> Unit = {},
     semesterHistory: List<SemesterRecord>,
     onSaveSemester: (name: String, gpa: Double, credits: Double) -> Unit,
     onDeleteSemester: (SemesterRecord) -> Unit,
-    onNavigateToSettings: () -> Unit,
+    onNavigateToSettings: () -> Unit = {},
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val calculatorListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
+    // One-time grade scale setup dialog on first entry, or when user opens customize
+    var showInitialGradeSetup by remember(isGradeScaleConfigured) {
+        mutableStateOf(!isGradeScaleConfigured)
+    }
+
+    if (showInitialGradeSetup) {
+        InitialGradeScaleSetupDialog(
+            currentScale = gradeScale,
+            isInitialSetup = !isGradeScaleConfigured,
+            onDismiss = {
+                showInitialGradeSetup = false
+                if (!isGradeScaleConfigured) {
+                    onDismissGradeScaleSetup()
+                }
+            },
+            onSave = { newScale ->
+                onSaveGradeScale(newScale)
+                showInitialGradeSetup = false
+            }
+        )
+    }
 
     // Course entries list - fresh clean state starting at 0
     val courses = remember {
@@ -193,12 +219,13 @@ fun CgpaCalculatorScreen(
                 },
                 actions = {
                     IconButton(
-                        onClick = onNavigateToSettings,
-                        modifier = Modifier.testTag("cgpa_grade_scale_settings_button")
+                        onClick = { showInitialGradeSetup = true },
+                        modifier = Modifier.testTag("cgpa_customize_scale_button")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Tune,
-                            contentDescription = "Grade Scale Settings"
+                            contentDescription = "Customize Grade Scale",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 },
@@ -344,6 +371,7 @@ fun CgpaCalculatorScreen(
                             }
                         }
                     }
+
 
                     // Optional Previous CGPA Card
                     item {
@@ -1106,4 +1134,213 @@ fun TargetCgpaPlannerView(
             }
         }
     }
+}
+
+@Composable
+fun InitialGradeScaleSetupDialog(
+    currentScale: GradeScale,
+    isInitialSetup: Boolean = false,
+    onDismiss: () -> Unit,
+    onSave: (GradeScale) -> Unit
+) {
+    var aPlus by remember(currentScale) { mutableStateOf(currentScale.aPlus.toString()) }
+    var a by remember(currentScale) { mutableStateOf(currentScale.a.toString()) }
+    var aMinus by remember(currentScale) { mutableStateOf(currentScale.aMinus.toString()) }
+    var bPlus by remember(currentScale) { mutableStateOf(currentScale.bPlus.toString()) }
+    var b by remember(currentScale) { mutableStateOf(currentScale.b.toString()) }
+    var bMinus by remember(currentScale) { mutableStateOf(currentScale.bMinus.toString()) }
+    var cPlus by remember(currentScale) { mutableStateOf(currentScale.cPlus.toString()) }
+    var c by remember(currentScale) { mutableStateOf(currentScale.c.toString()) }
+    var d by remember(currentScale) { mutableStateOf(currentScale.d.toString()) }
+    var f by remember(currentScale) { mutableStateOf(currentScale.f.toString()) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.size(38.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = if (isInitialSetup) Icons.Default.School else Icons.Default.Tune,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+                Column {
+                    Text(
+                        text = if (isInitialSetup) "University Grade Setup" else "Customize Grade Scale",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Adjust grade points for your university",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        text = {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                item {
+                    Text(
+                        text = if (isInitialSetup) {
+                            "Set point values according to your university requirement. This is saved for future calculations and can be customized anytime from the top bar icon or Settings."
+                        } else {
+                            "Update grade points according to your university requirement. Your GPA and CGPA calculations will update automatically based on these values."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = aPlus,
+                            onValueChange = { aPlus = it },
+                            label = { Text("A+") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                        OutlinedTextField(
+                            value = a,
+                            onValueChange = { a = it },
+                            label = { Text("A") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                    }
+                }
+
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = aMinus,
+                            onValueChange = { aMinus = it },
+                            label = { Text("A-") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                        OutlinedTextField(
+                            value = bPlus,
+                            onValueChange = { bPlus = it },
+                            label = { Text("B+") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                    }
+                }
+
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = b,
+                            onValueChange = { b = it },
+                            label = { Text("B") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                        OutlinedTextField(
+                            value = bMinus,
+                            onValueChange = { bMinus = it },
+                            label = { Text("B-") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                    }
+                }
+
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = cPlus,
+                            onValueChange = { cPlus = it },
+                            label = { Text("C+") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                        OutlinedTextField(
+                            value = c,
+                            onValueChange = { c = it },
+                            label = { Text("C") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                    }
+                }
+
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = d,
+                            onValueChange = { d = it },
+                            label = { Text("D") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                        OutlinedTextField(
+                            value = f,
+                            onValueChange = { f = it },
+                            label = { Text("F") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val scale = GradeScale(
+                        aPlus = aPlus.toDoubleOrNull() ?: 4.0,
+                        a = a.toDoubleOrNull() ?: 3.75,
+                        aMinus = aMinus.toDoubleOrNull() ?: 3.50,
+                        bPlus = bPlus.toDoubleOrNull() ?: 3.25,
+                        b = b.toDoubleOrNull() ?: 3.00,
+                        bMinus = bMinus.toDoubleOrNull() ?: 2.75,
+                        cPlus = cPlus.toDoubleOrNull() ?: 2.50,
+                        c = c.toDoubleOrNull() ?: 2.25,
+                        d = d.toDoubleOrNull() ?: 2.00,
+                        f = f.toDoubleOrNull() ?: 0.00
+                    )
+                    onSave(scale)
+                },
+                modifier = Modifier.testTag("initial_save_grade_scale_button")
+            ) {
+                Text(if (isInitialSetup) "Save & Continue" else "Save Changes")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier.testTag("initial_skip_grade_scale_button")
+            ) {
+                Text(if (isInitialSetup) "Use Default (4.0)" else "Cancel")
+            }
+        }
+    )
 }

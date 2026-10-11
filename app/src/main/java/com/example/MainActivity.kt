@@ -194,6 +194,7 @@ fun ClassNotesApp(
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
 
     val gradeScale by viewModel.gradeScale.collectAsStateWithLifecycle()
+    val isGradeScaleConfigured by viewModel.isGradeScaleConfigured.collectAsStateWithLifecycle()
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val assignmentRemindersEnabled by viewModel.assignmentRemindersEnabled.collectAsStateWithLifecycle()
     val examRemindersEnabled by viewModel.examRemindersEnabled.collectAsStateWithLifecycle()
@@ -408,6 +409,9 @@ fun ClassNotesApp(
                     is AppScreen.CgpaCalculator -> {
                         CgpaCalculatorScreen(
                             gradeScale = gradeScale,
+                            isGradeScaleConfigured = isGradeScaleConfigured,
+                            onSaveGradeScale = { viewModel.saveGradeScale(it) },
+                            onDismissGradeScaleSetup = { viewModel.dismissInitialGradeScaleSetup() },
                             semesterHistory = semesterRecords,
                             onSaveSemester = { name, gpa, credits ->
                                 viewModel.saveSemesterRecord(name, gpa, credits)
