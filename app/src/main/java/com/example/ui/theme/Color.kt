@@ -24,8 +24,8 @@ val SurfaceLight = Color(0xFFFFFFFF)
 val OnSurfaceLight = Color(0xFF111827)
 val SurfaceVariantLight = Color(0xFFEDF2F4)
 val OnSurfaceVariantLight = Color(0xFF52636B)
-val OutlineLight = Color(0xFFDFE5E8)
-val OutlineVariantLight = Color(0xFFE9EEF0)
+val OutlineLight = Color(0xFF64748B)
+val OutlineVariantLight = Color(0xFFCBD5E1)
 
 val AccentAmber = Color(0xFFF59E0B)
 
@@ -55,9 +55,9 @@ val OnSurfaceDark = Color(0xFFF1F5F9)
 val SurfaceVariantDark = Color(0xFF142227)
 val OnSurfaceVariantDark = Color(0xFF94A3B8)
 
-// Subtle Dark Teal Borders (Screenshot: #1A2A30)
-val OutlineDark = Color(0xFF1A2A30)
-val OutlineVariantDark = Color(0xFF16252B)
+// Clear, visible borders for input boxes and surfaces in Dark mode
+val OutlineDark = Color(0xFF475569)
+val OutlineVariantDark = Color(0xFF263339)
 
 // Star and Accent Colors
 val StarGold = Color(0xFFF59E0B)
