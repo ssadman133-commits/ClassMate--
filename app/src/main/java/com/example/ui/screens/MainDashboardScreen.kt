@@ -297,12 +297,20 @@ fun MainDashboardScreen(
                     ) {
                         com.example.ui.components.ClassMateAppLogo(size = 38.dp)
                         Column {
-                            Text(
-                                text = "ClassMate",
-                                style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
-                                fontWeight = FontWeight.Bold,
-                                color = if (isDark) Color.White else Color(0xFF0F172A)
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Class",
+                                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDark) Color.White else Color(0xFF0F172A)
+                                )
+                                Text(
+                                    text = "Mate",
+                                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDark) Color(0xFF60A5FA) else Color(0xFF2563EB)
+                                )
+                            }
                             Text(
                                 text = "Student Productivity Suite",
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
@@ -481,18 +489,14 @@ fun MainDashboardScreen(
                                         slideIntervalMillis = 4000L
                                     )
                                 } else {
-                                    AdMobBannerAd(
-                                        fallback = {
-                                            TodayAcademicAgendaBanner(
-                                                todayClasses = todayClasses,
-                                                todayDayName = todayDayName,
-                                                assignments = assignments,
-                                                exams = exams,
-                                                onNavigateToRoutine = onNavigateToRoutine,
-                                                onNavigateToAssignments = onNavigateToAssignments,
-                                                onNavigateToExams = onNavigateToExams
-                                            )
-                                        }
+                                    TodayAcademicAgendaBanner(
+                                        todayClasses = todayClasses,
+                                        todayDayName = todayDayName,
+                                        assignments = assignments,
+                                        exams = exams,
+                                        onNavigateToRoutine = onNavigateToRoutine,
+                                        onNavigateToAssignments = onNavigateToAssignments,
+                                        onNavigateToExams = onNavigateToExams
                                     )
                                 }
                             }
